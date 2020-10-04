@@ -16,10 +16,9 @@ Other optional feature that will be listed below
 ### Build and Develop Environment Setup
 
 Develop with Android Studio. 
-* API Level = 28.
+* API Level = 28 (Android Version 9).
 
 #### Develop Environment Setup
-
 The Build is desired to run locally.
 
 ### Build Setup
