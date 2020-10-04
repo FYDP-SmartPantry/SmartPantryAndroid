@@ -33,7 +33,7 @@ public class RegisterActivity extends AppCompatActivity {
                         ((EditText) findViewById(R.id.user_password)).setText("");
                         ((EditText) findViewById(R.id.confirm_password)).setText("");
                     } else {
-                        Intent registerIntent = new Intent(RegisterActivity.this, MainActivity.class);
+                        Intent registerIntent = new Intent(RegisterActivity.this, RegLogin.class);
                         Bundle registerBundle = new Bundle();
                         registerBundle.putCharSequence("User", username);
                         registerBundle.putCharSequence("Password", password);
