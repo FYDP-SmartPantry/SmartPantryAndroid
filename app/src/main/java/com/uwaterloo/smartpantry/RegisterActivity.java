@@ -28,11 +28,12 @@ public class RegisterActivity extends AppCompatActivity {
                 if (!"".equals(username) && !"".equals(password)) {
                     if (!password.equals(confirmPassword)) {
                         // Toast.makeText(this, "The password does not match. Please enter it again", Toast.LENGTH_LONG).show();
+                        // TODO this part design needs to connect to our application server for password verification
                         ((EditText) findViewById(R.id.user_name)).setText("");
                         ((EditText) findViewById(R.id.user_password)).setText("");
                         ((EditText) findViewById(R.id.confirm_password)).setText("");
                     } else {
-                        Intent registerIntent = new Intent();
+                        Intent registerIntent = new Intent(RegisterActivity.this, MainActivity.class);
                         Bundle registerBundle = new Bundle();
                         registerBundle.putCharSequence("User", username);
                         registerBundle.putCharSequence("Password", password);
@@ -40,6 +41,7 @@ public class RegisterActivity extends AppCompatActivity {
                         registerIntent.putExtras(registerBundle);
                     }
                 } else {
+                    // Toast.makeText()
                     // Toast.makeText()
                 }
             }
