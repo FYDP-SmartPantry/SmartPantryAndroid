@@ -23,6 +23,7 @@ public class LoginDataSource {
             // LoggedInUser fakeUser = new LoggedInUser(java.util.UUID.randomUUID().toString(), "Jane Doe");
             LoggedInUser defaultUser = new LoggedInUser(username, "test");
             if (username.equals(defaultUsername) && password.equals(defaultPassword)) {
+                System.out.println(username);
                 return new Result.Success<>(defaultUser);
             }  else {
                 return new Result.Failure<>(defaultUser);

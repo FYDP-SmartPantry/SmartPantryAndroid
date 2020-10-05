@@ -7,6 +7,7 @@
 
     <!-- Login Activity String Defines -->
     <string name="prompt_email">Email</string>
+    <string name="prompt_username">Username</string>
     <string name="user_name">Username</string>
     <string name="prompt_password">Password</string>
     <string name="confirm_password">Confirm password</string>
