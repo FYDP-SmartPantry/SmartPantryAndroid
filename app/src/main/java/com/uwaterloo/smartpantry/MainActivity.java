@@ -1,21 +1,33 @@
 package com.uwaterloo.smartpantry;
 
-import com.uwaterloo.smartpantry.ui.login.LoginActivity;
-import androidx.appcompat.app.AppCompatActivity;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.uwaterloo.smartpantry.ui.foodcamera.FoodcameraFragment;
+import com.uwaterloo.smartpantry.ui.foodinventory.FoodinventoryFragment;
+import com.uwaterloo.smartpantry.ui.foodstatus.FoodstatusFragment;
+import com.uwaterloo.smartpantry.ui.myprofile.MyprofileFragment;
+import com.uwaterloo.smartpantry.ui.shoppinglist.ShoppinglistFragment;
 
-import android.content.Context;
-import android.content.Intent;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
+
 import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
+
+import android.view.MenuItem;
+import androidx.annotation.NonNull;
 
 public class MainActivity extends AppCompatActivity {
+
+    BottomNavigationView bottomNavigation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        bottomNavigation = findViewById(R.id.bottom_navigation);
+        bottomNavigation.setOnNavigationItemSelectedListener(navigationItemSelectedListener);
+        openFragment(FoodcameraFragment.newInstance("", ""));
         /*registerButton.setOnClickListener(new View.OnClickListener() {
             // OnClick -> the login_register activity
             @Override
@@ -34,5 +46,36 @@ public class MainActivity extends AppCompatActivity {
             }
         });*/
     }
+
+    public void openFragment(Fragment fragment) {
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.container, fragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
+    }
+
+    BottomNavigationView.OnNavigationItemSelectedListener navigationItemSelectedListener =
+            new BottomNavigationView.OnNavigationItemSelectedListener() {
+                @Override public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                    switch (item.getItemId()) {
+                        case R.id.navigation_foodcamera:
+                            openFragment(FoodcameraFragment.newInstance("", ""));
+                            return true;
+                        case R.id.navigation_foodinventory:
+                            openFragment(FoodinventoryFragment.newInstance("", ""));
+                            return true;
+                        case R.id.navigation_foodstatus:
+                            openFragment(FoodstatusFragment.newInstance("", ""));
+                            return true;
+                        case R.id.navigation_shoppinglist:
+                            openFragment(ShoppinglistFragment.newInstance("", ""));
+                            return true;
+                        case R.id.navigation_myprofile:
+                            openFragment(MyprofileFragment.newInstance("", ""));
+                            return true;
+                    }
+                    return false;
+                }
+            };
 
 }
