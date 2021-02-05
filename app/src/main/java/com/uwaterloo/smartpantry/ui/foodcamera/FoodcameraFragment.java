@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.LayoutInflater;
+import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -106,9 +107,24 @@ public class FoodcameraFragment extends Fragment {
                         .requireLensFacing(CameraSelector.LENS_FACING_BACK)
                         .build();
 
+                cameraProvider.unbindAll();
                 Camera camera = cameraProvider.bindToLifecycle((LifecycleOwner)this, cameraSelector, preview, imageCapture);
 
-                PreviewView previewView = getView().findViewById(R.id.viewFinder);
+                PreviewView previewView = (PreviewView) getView().findViewById(R.id.viewFinder);
+                ScaleGestureDetector scaleGestureDetector = new ScaleGestureDetector(getContext(), new ScaleGestureDetector.SimpleOnScaleGestureListener() {
+                    @Override
+                    public boolean onScale(ScaleGestureDetector detector) {
+                        float zoomRatio = camera.getCameraInfo().getZoomState().getValue().getZoomRatio();
+                        float scale = zoomRatio * detector.getScaleFactor();
+                        camera.getCameraControl().setZoomRatio(scale);
+                        return true;
+                    }
+                });
+                previewView.setOnTouchListener((a, event) -> {
+                    scaleGestureDetector.onTouchEvent(event);
+                    return true;
+                });
+
                 preview.setSurfaceProvider(previewView.getSurfaceProvider());
             } catch(ExecutionException | InterruptedException e) {
             }
