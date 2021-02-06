@@ -5,7 +5,7 @@ import java.util.Map;
 
 public class ShoppingList implements Inventory {
 
-    private Map<String, Item> shoppingListMap = new HashMap<>();
+    public Map<String, Item> shoppingListMap = new HashMap<>();
 
     @Override
     public void addItemToInventory(Item item) {
@@ -23,10 +23,10 @@ public class ShoppingList implements Inventory {
     @Override
     public boolean removeItemFromInventory(Item item) {
         if (shoppingListMap.containsKey(item.getName())) {
-            return false;
-        } else {
             shoppingListMap.remove(item.getName());
             return true;
+        } else {
+            return false;
         }
     }
 

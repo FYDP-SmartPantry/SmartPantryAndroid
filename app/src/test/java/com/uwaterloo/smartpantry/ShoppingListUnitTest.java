@@ -3,6 +3,7 @@ import com.uwaterloo.smartpantry.inventory.Inventory;
 import com.uwaterloo.smartpantry.inventory.InventoryFactory;
 import com.uwaterloo.smartpantry.inventory.Item;
 import com.uwaterloo.smartpantry.inventory.ItemFactory;
+import com.uwaterloo.smartpantry.inventory.ShoppingList;
 import com.uwaterloo.smartpantry.inventory.Stock;
 
 import org.junit.Test;
@@ -14,6 +15,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class ShoppingListUnitTest {
+
     @Test
     public void testAddingItem() {
         Inventory shoppingList = InventoryFactory.getInventory("ShoppingList");
@@ -21,9 +23,21 @@ public class ShoppingListUnitTest {
         toShop1.setName("apple");
         toShop1.setStock(new Stock[] {new Stock("Fruit", 2)});
         shoppingList.addItemToInventory(toShop1);
-        assertEquals(shoppingList.InventorySize(), 1);
-
+        assertEquals(1, shoppingList.InventorySize());
         shoppingList.removeItemFromInventory(toShop1);
-        assertEquals(shoppingList.InventorySize(), 0);
+
+        assertEquals(0, shoppingList.InventorySize());
+    }
+
+    @Test
+    public void testRemoveItem() {
+        Inventory shoppingList = InventoryFactory.getInventory("ShoppingList");
+        Item toShop1 = ItemFactory.getItem("FOOD");
+        toShop1.setName("apple");
+        toShop1.setStock(new Stock[] {new Stock("Fruit", 2)});
+        shoppingList.addItemToInventory(toShop1);
+        assertEquals(1, shoppingList.InventorySize());
+        shoppingList.removeItemFromInventory(toShop1);
+        assertEquals(0, shoppingList.InventorySize());
     }
 }
