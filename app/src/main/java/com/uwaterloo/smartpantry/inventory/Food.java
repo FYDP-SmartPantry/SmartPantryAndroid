@@ -1,6 +1,8 @@
 package com.uwaterloo.smartpantry.inventory;
 
-public class Food {
+import java.util.Arrays;
+
+public class Food implements Item {
 
     String name = null;
     Stock stock = null;
@@ -8,7 +10,6 @@ public class Food {
     String expiration_date = null;
 
     public Food() {
-
     }
 
     public String getName() {
@@ -31,7 +32,7 @@ public class Food {
         this.category = category;
     }
 
-    public void setExpiration_date(String expiration_date) {
+    public void setExpirationDate(String expiration_date) {
         this.expiration_date = expiration_date;
     }
 
@@ -39,8 +40,15 @@ public class Food {
         this.name = name;
     }
 
-    public void setStock(Stock stock) {
-        this.stock = stock;
+    public void setStock(Stock[] stock) {
+        if (stock.length == 1) {
+            this.stock = stock[0];
+        }
+        int stock_cnt = 0;
+        for (Stock cur : stock) {
+            stock_cnt += cur.getNumber();
+        }
+        this.stock.setNumber(stock_cnt);
     }
 
 }

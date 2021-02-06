@@ -9,6 +9,9 @@ public class Stock {
         mNumber = number;
     }
 
+    public Stock () {
+
+    }
     public int getNumber() {
         return mNumber;
     }

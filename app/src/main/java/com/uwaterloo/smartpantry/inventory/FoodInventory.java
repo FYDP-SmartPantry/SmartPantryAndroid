@@ -3,7 +3,7 @@ package com.uwaterloo.smartpantry.inventory;
 import java.util.HashMap;
 import java.util.Map;
 
-public class FoodInventory {
+public class FoodInventory implements Inventory {
     private Map<String, Food> inventoryMap;
 
     FoodInventory() {
@@ -27,5 +27,21 @@ public class FoodInventory {
 
     public Map<String, Food> returnInventoryMap() {
         return inventoryMap;
+    }
+
+
+    @Override
+    public void addItemToInventory(Item item) {
+
+    }
+
+    @Override
+    public boolean removeItemFromInventory(Item item) {
+        return false;
+    }
+
+    @Override
+    public int InventorySize() {
+        return 0;
     }
 }

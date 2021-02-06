@@ -30,7 +30,7 @@ public class InventoryManager {
 
 
     public void moveFoodToWastedFoodList(Food food) {
-        WastedFood wastedFood = new WastedFood(food, "expired");
+        WastedFood wastedFood = new WastedFood(food);
         wastedFoodInventory.addFoodMap(wastedFood);
     }
 
