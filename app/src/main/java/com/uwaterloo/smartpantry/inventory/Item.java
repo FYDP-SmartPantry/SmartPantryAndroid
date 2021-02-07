@@ -5,7 +5,7 @@ public interface Item {
     void setName(String name);
 
     Stock getStock();
-    void setStock(Stock[] stock);
+    void setStock(Stock stock);
 
     Category getCategory();
     void setCategory(Category category);

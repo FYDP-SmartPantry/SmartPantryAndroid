@@ -8,10 +8,8 @@ public class Stock {
         mType = type;
         mNumber = number;
     }
+    public Stock () {}
 
-    public Stock () {
-
-    }
     public int getNumber() {
         return mNumber;
     }
@@ -26,5 +24,17 @@ public class Stock {
 
     public void setType(String mType) {
         this.mType = mType;
+    }
+
+    @Override
+    public boolean equals(Object val) {
+        if (val == this) {
+            return true;
+        }
+        if (!(val instanceof Stock)) {
+            return false;
+        }
+        Stock temp = (Stock) val;
+        return mType.equals(temp.mType) && (mNumber == temp.mNumber);
     }
 }

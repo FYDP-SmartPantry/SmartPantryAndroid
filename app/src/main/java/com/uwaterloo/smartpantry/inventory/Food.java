@@ -40,15 +40,7 @@ public class Food implements Item {
         this.name = name;
     }
 
-    public void setStock(Stock[] stock) {
-        if (stock.length == 1) {
-            this.stock = stock[0];
-        }
-        int stock_cnt = 0;
-        for (Stock cur : stock) {
-            stock_cnt += cur.getNumber();
-        }
-        this.stock.setNumber(stock_cnt);
+    public void setStock(Stock stock) {
+        this.stock = stock;
     }
-
 }

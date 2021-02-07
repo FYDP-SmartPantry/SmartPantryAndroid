@@ -44,4 +44,19 @@ public class FoodInventory implements Inventory {
     public int InventorySize() {
         return 0;
     }
+
+    @Override
+    public void clearInventory() {
+
+    }
+
+    @Override
+    public Item getItem(String item_name) {
+        return null;
+    }
+
+    @Override
+    public void updateItem(String item_name, Item item) {
+
+    }
 }

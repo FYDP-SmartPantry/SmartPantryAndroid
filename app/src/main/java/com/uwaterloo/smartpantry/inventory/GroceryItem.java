@@ -18,7 +18,7 @@ public class GroceryItem implements Item {
     }
 
     @Override
-    public void setStock(Stock[] stock) {
+    public void setStock(Stock stock) {
 
     }
 
