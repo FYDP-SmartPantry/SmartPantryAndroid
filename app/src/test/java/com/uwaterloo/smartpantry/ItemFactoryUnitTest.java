@@ -1,13 +1,9 @@
 package com.uwaterloo.smartpantry;
 import com.uwaterloo.smartpantry.inventory.Item;
-import com.uwaterloo.smartpantry.inventory.ItemFactory;
 
 import org.junit.Test;
 
 import static org.junit.Assert.*;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 
 public class ItemFactoryUnitTest {
     @Test

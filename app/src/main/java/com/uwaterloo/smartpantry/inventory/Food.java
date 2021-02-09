@@ -1,46 +1,55 @@
 package com.uwaterloo.smartpantry.inventory;
 
-import java.util.Arrays;
+public class Food implements FoodInterface {
 
-public class Food implements Item {
+    final static String nameString = "foodname";
+    final static String stockTypeString = "stockType";
+    final static String numberString = "count";
+    final static String categoryString = "category";
+    final static String expirationDateString = "expiration_date";
 
     String name = null;
-    Stock stock = null;
-    Category category = null;
+    String stockType = null;
+    int number = 0;
+    Category.CategoryEnum category = null;
     String expiration_date = null;
 
-    public Food() {
+    public Food() {}
+    public Food(FoodInterface food) {
+        this.name = food.getName();
+        this.stockType = food.getStockType();
+        this.number = food.getNumber();
+        this.category = food.getCategory();
+        this.expiration_date = food.getExpirationDate();
     }
 
-    public String getName() {
-        return this.name;
-    }
+    @Override
+    public String getExpirationDate() { return this.expiration_date; }
 
-    public Stock getStock() {
-        return this.stock;
-    }
+    @Override
+    public void setExpirationDate(String expiration_date) { this.expiration_date = expiration_date; }
 
-    public Category getCategory() {
-        return this.category;
-    }
+    @Override
+    public String getName() { return this.name; }
 
-    public String getExpirationDate() {
-        return this.expiration_date;
-    }
+    @Override
+    public void setName(String name) { this.name = name; }
 
-    public void setCategory(Category category) {
-        this.category = category;
-    }
+    @Override
+    public String getStockType() { return this.stockType; }
 
-    public void setExpirationDate(String expiration_date) {
-        this.expiration_date = expiration_date;
-    }
+    @Override
+    public void setStockType(String stockType) { this.stockType = stockType; }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+    @Override
+    public int getNumber() { return this.number; }
 
-    public void setStock(Stock stock) {
-        this.stock = stock;
-    }
+    @Override
+    public void setNumber(int number) { this.number = number; }
+
+    @Override
+    public Category.CategoryEnum getCategory() { return this.category; }
+
+    @Override
+    public void setCategory(Category.CategoryEnum category) { this.category = category; }
 }

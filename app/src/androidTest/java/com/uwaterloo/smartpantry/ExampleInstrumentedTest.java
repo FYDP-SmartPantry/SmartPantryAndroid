@@ -5,9 +5,15 @@ import android.content.Context;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import com.uwaterloo.smartpantry.database.DatabaseManager;
+import com.uwaterloo.smartpantry.inventory.Category;
+import com.uwaterloo.smartpantry.inventory.Inventory;
+import com.uwaterloo.smartpantry.inventory.Item;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import static com.uwaterloo.smartpantry.database.DatabaseManager.getSharedInstance;
 import static org.junit.Assert.*;
 
 /**

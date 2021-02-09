@@ -1,16 +1,20 @@
 package com.uwaterloo.smartpantry.inventory;
 
+/*
+* For a certain Item, there are 4 types
+* */
 public interface Item {
+
     String getName();
     void setName(String name);
 
-    Stock getStock();
-    void setStock(Stock stock);
+    String getStockType();
+    void setStockType(String stockType);
 
-    Category getCategory();
-    void setCategory(Category category);
+    int getNumber();
+    void setNumber(int number);
 
-    String getExpirationDate();
-    void setExpirationDate(String expiration_date);
+    Category.CategoryEnum getCategory();
+    void setCategory(Category.CategoryEnum category);
 
 }

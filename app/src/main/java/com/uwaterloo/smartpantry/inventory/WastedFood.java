@@ -12,7 +12,6 @@ public class WastedFood extends Food implements Item{
     public WastedFood(Food food) {
         this.name = food.name;
         this.category = food.category;
-        this.stock = food.stock;
         this.expiration_date = food.expiration_date;
     }
 

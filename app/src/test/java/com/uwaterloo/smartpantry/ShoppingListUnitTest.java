@@ -1,20 +1,15 @@
 package com.uwaterloo.smartpantry;
+
 import com.uwaterloo.smartpantry.inventory.Category;
 import com.uwaterloo.smartpantry.inventory.Inventory;
-import com.uwaterloo.smartpantry.inventory.InventoryFactory;
 import com.uwaterloo.smartpantry.inventory.Item;
-import com.uwaterloo.smartpantry.inventory.ItemFactory;
-import com.uwaterloo.smartpantry.inventory.ShoppingList;
-import com.uwaterloo.smartpantry.inventory.Stock;
 
-import org.junit.Test;
-import static org.junit.Assert.*;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Test;
 
-import static com.uwaterloo.smartpantry.inventory.Category.FRUIT;
-import static com.uwaterloo.smartpantry.inventory.Category.VEGETABLE;
-import static com.uwaterloo.smartpantry.inventory.InventoryFactory.getInventory;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 
 public class ShoppingListUnitTest {
@@ -81,24 +76,23 @@ public class ShoppingListUnitTest {
         Item toShop1 = ItemFactory.getItem("FOOD");
         toShop1.setName("apple");
         toShop1.setStock(new Stock("Individual", 2));
-        toShop1.setCategory(FRUIT);
+        toShop1.setCategory(Category.CategoryEnum.FRUIT);
 
         shoppingList.addItemToInventory(toShop1);
         assertEquals("apple", toShop1.getName());
-        assertEquals(toShop1.getCategory(), FRUIT);
+        assertEquals(Category.CategoryEnum.FRUIT, toShop1.getCategory());
         assertTrue(toShop1.getStock().equals(new Stock("Individual", 2)));
 
         Item toModify = shoppingList.getItem(toShop1.getName());
         toModify.setName("Tomato");
-        toModify.setCategory(VEGETABLE);
+        toModify.setCategory(Category.CategoryEnum.VEGETABLE);
         toModify.setStock(new Stock ("Individual", 3));
         shoppingList.updateItem(toShop1.getName(), toModify);
 
         Item temp = shoppingList.getItem(toModify.getName());
         assertEquals("Tomato", temp.getName());
-        assertEquals(VEGETABLE, temp.getCategory());
+        assertEquals(Category.CategoryEnum.VEGETABLE, temp.getCategory());
         assertTrue(temp.getStock().equals(new Stock("Individual", 3)));
-
     }
 
 }

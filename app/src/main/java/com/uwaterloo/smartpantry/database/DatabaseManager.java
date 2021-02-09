@@ -1,12 +1,9 @@
 package com.uwaterloo.smartpantry.database;
 import android.content.Context;
-
-import androidx.annotation.NonNull;
+import android.util.Log;
 
 import com.couchbase.lite.CouchbaseLite;
 import com.couchbase.lite.CouchbaseLiteException;
-import com.couchbase.lite.DatabaseChange;
-import com.couchbase.lite.DatabaseChangeListener;
 import com.couchbase.lite.Database;
 import com.couchbase.lite.DatabaseConfiguration;
 import com.couchbase.lite.ListenerToken;
@@ -15,16 +12,20 @@ import java.util.Map;
 
 public class DatabaseManager {
 
+    public static final String shoppingListDbStr = "shoppingListDB";
+    public static final String inventoryDbStr = "InventoryDB";
+    public static final String userInfoDbStr = "userDB";
+
+    private String tag = "dbManager";
+
     private static DatabaseManager instance = null;
-    private static Map<String, Database> mDbMap;
-    private static Object CouchbaseLiteException;
-    private ListenerToken listenerToken;
+    private static Database inventoryDb;
+    private static Database shoppingListDb;
+    private static Database userInfoDb;
 
     public  String currentUser = null;
 
-    protected DatabaseManager() {
-
-    }
+    protected DatabaseManager() {}
 
     public static DatabaseManager getSharedInstance() {
         if (instance == null) {
@@ -33,18 +34,16 @@ public class DatabaseManager {
         return instance;
     }
 
-    public static Database getDatabase(String database_name) throws Exception {
-        if(database_name != null && !database_name.trim().isEmpty()) {
-            // throw exception here
-            throw new Exception("database signature is null or empty");
+    public static Database getDatabase(String database_name) {
+        if (database_name.equalsIgnoreCase(userInfoDbStr)) {
+            return userInfoDb;
+        } else if (database_name.equalsIgnoreCase(inventoryDbStr)) {
+            return inventoryDb;
+        } else if (database_name.equalsIgnoreCase(shoppingListDbStr)) {
+            Log.d("asd","return shoppinglistdb");
+            return shoppingListDb;
         } else {
-            Database db = mDbMap.get(database_name);
-            if (db != null) {
-                return db;
-            } else {
-                // throw exception here
-                throw new Exception("database is null");
-            }
+            return null;
         }
     }
 
@@ -54,14 +53,13 @@ public class DatabaseManager {
 
     public void openOrCreateDatabaseForUser(Context context, String username) {
         DatabaseConfiguration config = new DatabaseConfiguration();
-        config.setDirectory(String.format("%s/%s", context.getFilesDir(), username));
-
+        config.setDirectory(String.format("%s/%s", context.getFilesDir().getAbsolutePath(), username));
+        Log.d(tag, String.format("%s/%s", context.getFilesDir().getAbsolutePath(), username));
         currentUser = username;
         try {
-            Database userdb = new Database("user", config);
-            Database userInventory = new Database("inventory", config);
-            mDbMap.put("user", userdb);
-            mDbMap.put("inventory", userInventory);
+            userInfoDb = new Database(userInfoDbStr, config);
+            inventoryDb = new Database(inventoryDbStr, config);
+            shoppingListDb = new Database(shoppingListDbStr, config);
         } catch (com.couchbase.lite.CouchbaseLiteException e) {
             e.printStackTrace();
         }
@@ -69,18 +67,38 @@ public class DatabaseManager {
 
     public void closeDatabaseForUser() {
         try {
-            if (!mDbMap.isEmpty()) {
-                for (Map.Entry<String, Database> entry: mDbMap.entrySet()) {
-                    Database db = entry.getValue();
-                    db.close();
-                    mDbMap.remove(entry.getKey());
-                }
+            if (userInfoDb != null) {
+                userInfoDb.close();
+            }
+            if (inventoryDb != null) {
+                inventoryDb.close();
+            }
+            if (shoppingListDb != null) {
+                shoppingListDb.close();
             }
         } catch (com.couchbase.lite.CouchbaseLiteException e) {
             e.printStackTrace();
         }
     }
 
-    //TODO: INVESTIGATE LIVE QUERY OPTION AND APPLICATION
+    public void deleteDatabaseForUser(String dbName) {
+        try {
+            if (dbName.equals(inventoryDbStr)) {
+                inventoryDb.delete();
+                Log.d(tag, String.format("%s is deleted", inventoryDbStr));
+            } else if (dbName.equals(shoppingListDbStr)) {
+                shoppingListDb.delete();
+                Log.d(tag, String.format("%s is deleted", shoppingListDbStr));
+            } else if (dbName.equals(userInfoDbStr)) {
+                userInfoDb.delete();
+                Log.d(tag, String.format("%s is deleted", userInfoDbStr));
+            } else {
+                Log.d(tag, String.format("Unrecognized dbName %s", dbName));
+            }
+        } catch (CouchbaseLiteException e) {
+            e.printStackTrace();
+        }
+    }
 
+    //TODO: INVESTIGATE LIVE QUERY OPTION AND APPLICATION
 }

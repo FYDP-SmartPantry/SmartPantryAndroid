@@ -1,5 +1,9 @@
 package com.uwaterloo.smartpantry.inventory;
 
+import com.couchbase.lite.Database;
+import com.couchbase.lite.MutableDocument;
+import com.uwaterloo.smartpantry.database.DatabaseManager;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,13 +16,7 @@ public class FoodInventory implements Inventory {
     }
 
     public void addFoodMap(Food food) {
-        if (inventoryMap.containsKey(food.getName())) {
-            Food inventoryFood = inventoryMap.get(food.getName());
-            inventoryFood.stock.setNumber(inventoryFood.getStock().getNumber() + food.getStock().getNumber());
-            inventoryMap.put(food.getName(), inventoryFood);
-        } else {
-            inventoryMap.put(food.getName(), food);
-        }
+
     }
 
     public void removeFromFoodMap(Food food) {
@@ -36,8 +34,8 @@ public class FoodInventory implements Inventory {
     }
 
     @Override
-    public boolean removeItemFromInventory(Item item) {
-        return false;
+    public void removeItemFromInventory(Item item) {
+
     }
 
     @Override
@@ -58,5 +56,34 @@ public class FoodInventory implements Inventory {
     @Override
     public void updateItem(String item_name, Item item) {
 
+    }
+
+    @Override
+    public boolean loadInventory() {
+        return false;
+    }
+
+    @Override
+    public boolean saveInventory() {
+        try {
+            Database database = DatabaseManager.getDatabase("inventory");
+            for (Map.Entry<String, Food> food : inventoryMap.entrySet()) {
+                MutableDocument mutableDocument = new MutableDocument();
+                //mutableDocument.setString("")
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    @Override
+    public boolean syncInventory() {
+        return false;
+    }
+
+    @Override
+    public boolean deleteInventory() throws Exception {
+        return false;
     }
 }

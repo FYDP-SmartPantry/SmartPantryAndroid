@@ -2,43 +2,45 @@ package com.uwaterloo.smartpantry.inventory;
 
 public class GroceryItem implements Item {
 
-    @Override
-    public String getName() {
-        return null;
+    final static String nameString = "foodname";
+    final static String stockTypeString = "stockType";
+    final static String numberString = "count";
+    final static String categoryString = "category";
+
+    String name = null;
+    String stockType = null;
+    int number = 0;
+    Category.CategoryEnum category = null;
+
+    public GroceryItem() {}
+    public GroceryItem(Item item) {
+        this.name = item.getName();
+        this.stockType = item.getStockType();
+        this.number = item.getNumber();
+        this.category = item.getCategory();
     }
 
     @Override
-    public void setName(String name) {
-
-    }
+    public String getName() { return this.name; }
 
     @Override
-    public Stock getStock() {
-        return null;
-    }
+    public void setName(String name) { this.name = name; }
 
     @Override
-    public void setStock(Stock stock) {
-
-    }
+    public String getStockType() { return this.stockType; }
 
     @Override
-    public Category getCategory() {
-        return null;
-    }
+    public void setStockType(String stockType) { this.stockType = stockType; }
 
     @Override
-    public void setCategory(Category category) {
-
-    }
+    public int getNumber() { return this.number; }
 
     @Override
-    public String getExpirationDate() {
-        return null;
-    }
+    public void setNumber(int number) { this.number = number; }
 
     @Override
-    public void setExpirationDate(String expiration_date) {
+    public Category.CategoryEnum getCategory() { return this.category; }
 
-    }
+    @Override
+    public void setCategory(Category.CategoryEnum category) { this.category = category; }
 }
