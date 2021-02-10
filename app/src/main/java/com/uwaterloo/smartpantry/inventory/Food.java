@@ -22,6 +22,13 @@ public class Food implements FoodInterface {
         this.category = food.getCategory();
         this.expiration_date = food.getExpirationDate();
     }
+    
+    public Food(Item item) {
+        this.name = item.getName();
+        this.stockType = item.getStockType();
+        this.number = item.getNumber();
+        this.category = item.getCategory();
+    }
 
     @Override
     public String getExpirationDate() { return this.expiration_date; }

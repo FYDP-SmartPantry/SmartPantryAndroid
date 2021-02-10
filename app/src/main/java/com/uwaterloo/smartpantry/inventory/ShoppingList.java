@@ -76,7 +76,7 @@ public class ShoppingList implements Inventory {
     @Override
     public boolean loadInventory() {
         try {
-            Database database = DatabaseManager.getDatabase("shoppingListDB");
+            Database database = DatabaseManager.getDatabase(DatabaseManager.shoppingListDbStr);
             Query query = QueryBuilder.select(
                     SelectResult.expression(Meta.id),
                     SelectResult.property(GroceryItem.nameString),
@@ -86,10 +86,6 @@ public class ShoppingList implements Inventory {
             try {
                 ResultSet rs = query.execute();
                 for (Result result : rs) {
-                    System.out.println(GroceryItem.nameString + String.format("%s", result.getString(GroceryItem.nameString)));
-                    System.out.println(GroceryItem.categoryString + String.format("%s", result.getString(GroceryItem.categoryString)));
-                    System.out.println(GroceryItem.stockTypeString + String.format("%s", result.getString(GroceryItem.stockTypeString)));
-                    System.out.println(GroceryItem.numberString + String.format("%d", result.getInt(GroceryItem.numberString)));
                     GroceryItem item = new GroceryItem();
                     item.setName(result.getString(GroceryItem.nameString));
                     item.setCategory(Category.StringToCategory(result.getString(GroceryItem.categoryString)));
@@ -109,7 +105,7 @@ public class ShoppingList implements Inventory {
     @Override
     public boolean saveInventory() {
         try {
-            Database database = DatabaseManager.getDatabase("shoppingListDB");
+            Database database = DatabaseManager.getDatabase(DatabaseManager.shoppingListDbStr);
             for (Map.Entry<String, Item> item : shoppingListMap.entrySet()) {
                 MutableDocument mutableDocument = new MutableDocument();
                 mutableDocument.setString(GroceryItem.nameString, item.getValue().getName());

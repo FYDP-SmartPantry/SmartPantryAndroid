@@ -1,5 +1,4 @@
 package com.uwaterloo.smartpantry.inventory;
-
 import com.couchbase.lite.CouchbaseLiteException;
 import com.couchbase.lite.DataSource;
 import com.couchbase.lite.Database;
@@ -16,24 +15,23 @@ import com.uwaterloo.smartpantry.database.DatabaseManager;
 import java.util.HashMap;
 import java.util.Map;
 
-public class FoodInventory implements Inventory {
+public class WastedFoodInventory implements Inventory {
+    private Map<String, WastedFood> inventoryMap = new HashMap<>();
 
-    private Map<String, Food> inventoryMap = new HashMap<>();
-
-    public FoodInventory() {}
+    public WastedFoodInventory() {}
 
     @Override
     public void addItemToInventory(Item food) throws Exception {
         if (!inventoryMap.containsKey(food.getName())) {
-            inventoryMap.put(food.getName(), new Food(food));
+            inventoryMap.put(food.getName(), (WastedFood) food);
         } else {
-            Food currItem = inventoryMap.get(food.getName());
+            WastedFood currItem = inventoryMap.get(food.getName());
             if (food.getStockType() == currItem.getStockType()) {
                 // we already have a item in the shopping list that named this way but in different type stock
                 // this is not allowed
                 throw new Exception(String.format("Already have %s in stock, type as %s", currItem.getName(), currItem.getStockType()));
             } else {
-                Food itemToStore = new Food(food);
+                WastedFood itemToStore = new WastedFood((Food) food);
                 itemToStore.setNumber(food.getNumber() + currItem.getNumber());
                 inventoryMap.put(food.getName(), itemToStore);
             }
@@ -61,20 +59,20 @@ public class FoodInventory implements Inventory {
         if (inventoryMap.containsKey(item_name)) {
             inventoryMap.remove(item_name);
         }
-        inventoryMap.put(item_name, (Food) item);
+        inventoryMap.put(item_name, (WastedFood) item);
     }
 
     @Override
     public boolean loadInventory() {
         try {
-            Database database = DatabaseManager.getDatabase(DatabaseManager.inventoryDbStr);
+            Database database = DatabaseManager.getDatabase(DatabaseManager.wastedFoodDbStr);
             Query query = QueryBuilder.select(
                     SelectResult.expression(Meta.id),
-                    SelectResult.property(Food.nameString),
-                    SelectResult.property(Food.categoryString),
-                    SelectResult.property(Food.stockTypeString),
-                    SelectResult.property(Food.numberString),
-                    SelectResult.property(Food.expirationDateString)).from(DataSource.database(database)).orderBy(Ordering.expression(Meta.id));
+                    SelectResult.property(WastedFood.nameString),
+                    SelectResult.property(WastedFood.categoryString),
+                    SelectResult.property(WastedFood.stockTypeString),
+                    SelectResult.property(WastedFood.numberString),
+                    SelectResult.property(WastedFood.reason)).from(DataSource.database(database)).orderBy(Ordering.expression(Meta.id));
             try {
                 ResultSet rs = query.execute();
                 for (Result result : rs) {
@@ -84,6 +82,7 @@ public class FoodInventory implements Inventory {
                     food.setStockType(result.getString(Food.stockTypeString));
                     food.setNumber(result.getInt(Food.numberString));
                     food.setExpirationDate(result.getString(Food.expirationDateString));
+                    result.getArray("")
                     inventoryMap.put(food.getName(), food);
                 }
             } catch (CouchbaseLiteException e) {
@@ -98,14 +97,15 @@ public class FoodInventory implements Inventory {
     @Override
     public boolean saveInventory() {
         try {
-            Database database = DatabaseManager.getDatabase(DatabaseManager.inventoryDbStr);
-            for (Map.Entry<String, Food> food : inventoryMap.entrySet()) {
+            Database database = DatabaseManager.getDatabase(DatabaseManager.wastedFoodDbStr);
+            for (Map.Entry<String, WastedFood> food : inventoryMap.entrySet()) {
                 MutableDocument mutableDocument = new MutableDocument();
                 mutableDocument.setString(Food.nameString, food.getValue().getName());
                 mutableDocument.setString(Food.stockTypeString, food.getValue().getStockType());
                 mutableDocument.setInt(Food.numberString, food.getValue().getNumber());
                 mutableDocument.setString(Food.categoryString, Category.CategoryToString(food.getValue().getCategory()));
                 mutableDocument.setString(Food.expirationDateString, food.getValue().getExpirationDate());
+                mutableDocument.setArray(WastedFood.reason, food.getValue().getReasons());
                 try {
                     database.save(mutableDocument);
                 } catch (CouchbaseLiteException e) {
@@ -131,3 +131,4 @@ public class FoodInventory implements Inventory {
         return true;
     }
 }
+

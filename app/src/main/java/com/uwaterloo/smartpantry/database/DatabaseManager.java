@@ -15,6 +15,7 @@ public class DatabaseManager {
     public static final String shoppingListDbStr = "shoppingListDB";
     public static final String inventoryDbStr = "InventoryDB";
     public static final String userInfoDbStr = "userDB";
+    public static final String wastedFoodDbStr = "wastedFoodDb";
 
     private String tag = "dbManager";
 
@@ -22,6 +23,7 @@ public class DatabaseManager {
     private static Database inventoryDb;
     private static Database shoppingListDb;
     private static Database userInfoDb;
+    private static Database wastedFoodDb;
 
     public  String currentUser = null;
 
@@ -42,6 +44,8 @@ public class DatabaseManager {
         } else if (database_name.equalsIgnoreCase(shoppingListDbStr)) {
             Log.d("asd","return shoppinglistdb");
             return shoppingListDb;
+        } else if (database_name.equalsIgnoreCase(wastedFoodDbStr)) {
+            return wastedFoodDb;
         } else {
             return null;
         }
@@ -60,6 +64,7 @@ public class DatabaseManager {
             userInfoDb = new Database(userInfoDbStr, config);
             inventoryDb = new Database(inventoryDbStr, config);
             shoppingListDb = new Database(shoppingListDbStr, config);
+            wastedFoodDb = new Database(wastedFoodDbStr, config);
         } catch (com.couchbase.lite.CouchbaseLiteException e) {
             e.printStackTrace();
         }
@@ -74,6 +79,9 @@ public class DatabaseManager {
                 inventoryDb.close();
             }
             if (shoppingListDb != null) {
+                shoppingListDb.close();
+            }
+            if (wastedFoodDb != null) {
                 shoppingListDb.close();
             }
         } catch (com.couchbase.lite.CouchbaseLiteException e) {
@@ -92,6 +100,9 @@ public class DatabaseManager {
             } else if (dbName.equals(userInfoDbStr)) {
                 userInfoDb.delete();
                 Log.d(tag, String.format("%s is deleted", userInfoDbStr));
+            } else if (dbName.equals(wastedFoodDbStr)) {
+                wastedFoodDb.delete();
+                Log.d(tag, String.format("%s is deleted", wastedFoodDbStr));
             } else {
                 Log.d(tag, String.format("Unrecognized dbName %s", dbName));
             }
