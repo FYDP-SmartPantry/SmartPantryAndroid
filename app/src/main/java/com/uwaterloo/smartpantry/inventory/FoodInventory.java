@@ -16,16 +16,15 @@ import com.uwaterloo.smartpantry.database.DatabaseManager;
 import java.util.HashMap;
 import java.util.Map;
 
-public class FoodInventory implements Inventory {
+public class FoodInventory{
 
     private Map<String, Food> inventoryMap = new HashMap<>();
 
     public FoodInventory() {}
 
-    @Override
-    public void addItemToInventory(Item food) throws Exception {
+    public void addItemToInventory(Food food) throws Exception {
         if (!inventoryMap.containsKey(food.getName())) {
-            inventoryMap.put(food.getName(), new Food(food));
+            inventoryMap.put(food.getName(), food);
         } else {
             Food currItem = inventoryMap.get(food.getName());
             if (food.getStockType() == currItem.getStockType()) {
@@ -40,31 +39,25 @@ public class FoodInventory implements Inventory {
         }
     }
 
-    @Override
-    public void removeItemFromInventory(Item item) {
+    public void removeItemFromInventory(Food item) {
         if (inventoryMap.containsKey(item.getName())) {
             inventoryMap.remove(item.getName());
         }
     }
 
-    @Override
     public int InventorySize() { return inventoryMap.size(); }
 
-    @Override
     public void clearInventory() { inventoryMap.clear(); }
 
-    @Override
-    public Item getItem(String item_name) { return inventoryMap.get(item_name); }
+    public Food getFood(String item_name) { return inventoryMap.get(item_name); }
 
-    @Override
-    public void updateItem(String item_name, Item item) {
+    public void updateItem(String item_name, Food item) {
         if (inventoryMap.containsKey(item_name)) {
             inventoryMap.remove(item_name);
         }
-        inventoryMap.put(item_name, (Food) item);
+        inventoryMap.put(item_name, item);
     }
 
-    @Override
     public boolean loadInventory() {
         try {
             Database database = DatabaseManager.getDatabase(DatabaseManager.inventoryDbStr);
@@ -95,7 +88,6 @@ public class FoodInventory implements Inventory {
         return false;
     }
 
-    @Override
     public boolean saveInventory() {
         try {
             Database database = DatabaseManager.getDatabase(DatabaseManager.inventoryDbStr);
@@ -119,12 +111,10 @@ public class FoodInventory implements Inventory {
         return false;
     }
 
-    @Override
     public boolean syncInventory() {
         return false;
     }
 
-    @Override
     public boolean deleteInventory() throws Exception {
         DatabaseManager dbmgr = DatabaseManager.getSharedInstance();
         dbmgr.deleteDatabaseForUser(DatabaseManager.inventoryDbStr);

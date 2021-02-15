@@ -1,33 +1,27 @@
 package com.uwaterloo.smartpantry;
 
-import androidx.test.ext.junit.runners.AndroidJUnit4;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.runner.RunWith;
-
 import android.content.Context;
 
 import androidx.test.platform.app.InstrumentationRegistry;
 
-import com.couchbase.lite.Database;
 import com.uwaterloo.smartpantry.database.DatabaseManager;
 import com.uwaterloo.smartpantry.inventory.Category;
+import com.uwaterloo.smartpantry.inventory.Food;
+import com.uwaterloo.smartpantry.inventory.FoodInventory;
 import com.uwaterloo.smartpantry.inventory.GroceryItem;
 import com.uwaterloo.smartpantry.inventory.Inventory;
 import com.uwaterloo.smartpantry.inventory.Item;
 import com.uwaterloo.smartpantry.inventory.ShoppingList;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
-import static com.uwaterloo.smartpantry.database.DatabaseManager.getDatabase;
 import static com.uwaterloo.smartpantry.database.DatabaseManager.getSharedInstance;
 import static org.junit.Assert.assertEquals;
 
-@RunWith(AndroidJUnit4.class)
-public class ShoppingListInstrumentedTest {
-
-    private Inventory shoppingList = new ShoppingList();
+public class FoodInventoryInstrumentedTest {
+    private FoodInventory foodInventory = new FoodInventory();
     private DatabaseManager dbManager = getSharedInstance();
     private Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
 
@@ -45,44 +39,47 @@ public class ShoppingListInstrumentedTest {
     public void saveDatabaseManager() throws Exception {
 
 
-        shoppingList.saveInventory();
-        shoppingList.clearInventory();
-        shoppingList.loadInventory();
+        foodInventory.saveInventory();
+        foodInventory.clearInventory();
+        foodInventory.loadInventory();
 
-        Item item = shoppingList.getItem("apple");
+        Food item = foodInventory.getFood("apple");
         assertEquals(Category.CategoryEnum.FRUIT, item.getCategory());
         assertEquals(5, item.getNumber());
         assertEquals("lbs", item.getStockType());
+        assertEquals("2021/1/3", item.getExpirationDate());
 
-        item = shoppingList.getItem("orange");
+        item = foodInventory.getFood("orange");
         assertEquals(Category.CategoryEnum.FRUIT, item.getCategory());
         assertEquals(6, item.getNumber());
         assertEquals("cnt", item.getStockType());
-
+        assertEquals("2021/1/3", item.getExpirationDate());
 
     }
 
     private void addAppleItem() {
-        Item toShop1 = new GroceryItem();
+        Food toShop1 = new Food();
         toShop1.setName("apple");
         toShop1.setCategory(Category.CategoryEnum.FRUIT);
         toShop1.setStockType("lbs");
         toShop1.setNumber(5);
+        toShop1.setExpirationDate("2021/1/3");
         try {
-            shoppingList.addItemToInventory(toShop1);
+            foodInventory.addItemToInventory(toShop1);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     private void addOrangeItem() {
-        Item toShop2 = new GroceryItem();
+        Food toShop2 = new Food();
         toShop2.setName("orange");
         toShop2.setCategory(Category.CategoryEnum.FRUIT);
         toShop2.setStockType("cnt");
         toShop2.setNumber(6);
+        toShop2.setExpirationDate("2021/1/3");
         try {
-            shoppingList.addItemToInventory(toShop2);
+            foodInventory.addItemToInventory(toShop2);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -91,7 +88,7 @@ public class ShoppingListInstrumentedTest {
     @After
     public void clearDatabase() {
         try {
-            shoppingList.deleteInventory();
+            foodInventory.deleteInventory();
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -7,14 +7,14 @@ import java.util.List;
 
 public class WastedFood extends Food implements Item{
 
-    private ArrayList<String> reasonlist = new ArrayList<>();
+    private String reason;
 
     final static String nameString = "foodname";
     final static String stockTypeString = "stockType";
     final static String numberString = "count";
     final static String categoryString = "category";
     final static String expirationDateString = "expiration_date";
-    final static String reason = "reason";
+    final static String reasonString = "reason";
 
     public WastedFood() {};
     public WastedFood(Item item) {
@@ -39,15 +39,15 @@ public class WastedFood extends Food implements Item{
     }
 
     public void addReason(String reason) {
-        reasonlist.add(reason);
+        this.reason = reason;
     }
 
     public void removeReason(String reason) {
-        reasonlist.remove(reason);
+        this.reason = null;
     }
 
-    public com.couchbase.lite.Array getReasons() {
-        com.couchbase.lite.Array arr = new com.couchbase.lite.Array();
+    public String getReason() {
+        return this.reason;
     }
     // TODO better use a builder pattern
 }

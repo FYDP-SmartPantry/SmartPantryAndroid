@@ -1,4 +1,5 @@
 package com.uwaterloo.smartpantry.inventory;
+import com.couchbase.lite.Array;
 import com.couchbase.lite.CouchbaseLiteException;
 import com.couchbase.lite.DataSource;
 import com.couchbase.lite.Database;
@@ -12,18 +13,20 @@ import com.couchbase.lite.ResultSet;
 import com.couchbase.lite.SelectResult;
 import com.uwaterloo.smartpantry.database.DatabaseManager;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-public class WastedFoodInventory implements Inventory {
+public class WastedFoodInventory {
     private Map<String, WastedFood> inventoryMap = new HashMap<>();
 
     public WastedFoodInventory() {}
 
-    @Override
-    public void addItemToInventory(Item food) throws Exception {
+    //@Override
+    public void addItemToInventory(WastedFood food) throws Exception {
         if (!inventoryMap.containsKey(food.getName())) {
-            inventoryMap.put(food.getName(), (WastedFood) food);
+            inventoryMap.put(food.getName(), food);
         } else {
             WastedFood currItem = inventoryMap.get(food.getName());
             if (food.getStockType() == currItem.getStockType()) {
@@ -31,38 +34,38 @@ public class WastedFoodInventory implements Inventory {
                 // this is not allowed
                 throw new Exception(String.format("Already have %s in stock, type as %s", currItem.getName(), currItem.getStockType()));
             } else {
-                WastedFood itemToStore = new WastedFood((Food) food);
+                WastedFood itemToStore = new WastedFood(food);
                 itemToStore.setNumber(food.getNumber() + currItem.getNumber());
                 inventoryMap.put(food.getName(), itemToStore);
             }
         }
     }
 
-    @Override
-    public void removeItemFromInventory(Item item) {
+    //@Override
+    public void removeItemFromInventory(WastedFood item) {
         if (inventoryMap.containsKey(item.getName())) {
             inventoryMap.remove(item.getName());
         }
     }
 
-    @Override
+    //@Override
     public int InventorySize() { return inventoryMap.size(); }
 
-    @Override
+    //@Override
     public void clearInventory() { inventoryMap.clear(); }
 
-    @Override
-    public Item getItem(String item_name) { return inventoryMap.get(item_name); }
+    //@Override
+    public WastedFood getWastedFood(String item_name) { return inventoryMap.get(item_name); }
 
-    @Override
-    public void updateItem(String item_name, Item item) {
+    //@Override
+    public void updateItem(String item_name, WastedFood item) {
         if (inventoryMap.containsKey(item_name)) {
             inventoryMap.remove(item_name);
         }
-        inventoryMap.put(item_name, (WastedFood) item);
+        inventoryMap.put(item_name, item);
     }
 
-    @Override
+    //@Override
     public boolean loadInventory() {
         try {
             Database database = DatabaseManager.getDatabase(DatabaseManager.wastedFoodDbStr);
@@ -72,17 +75,16 @@ public class WastedFoodInventory implements Inventory {
                     SelectResult.property(WastedFood.categoryString),
                     SelectResult.property(WastedFood.stockTypeString),
                     SelectResult.property(WastedFood.numberString),
-                    SelectResult.property(WastedFood.reason)).from(DataSource.database(database)).orderBy(Ordering.expression(Meta.id));
+                    SelectResult.property(WastedFood.reasonString)).from(DataSource.database(database)).orderBy(Ordering.expression(Meta.id));
             try {
                 ResultSet rs = query.execute();
                 for (Result result : rs) {
-                    Food food = new Food();
-                    food.setName(result.getString(Food.nameString));
-                    food.setCategory(Category.StringToCategory(result.getString(Food.categoryString)));
-                    food.setStockType(result.getString(Food.stockTypeString));
-                    food.setNumber(result.getInt(Food.numberString));
-                    food.setExpirationDate(result.getString(Food.expirationDateString));
-                    result.getArray("")
+                    WastedFood food = new WastedFood();
+                    food.setName(result.getString(WastedFood.nameString));
+                    food.setCategory(Category.StringToCategory(result.getString(WastedFood.categoryString)));
+                    food.setStockType(result.getString(WastedFood.stockTypeString));
+                    food.setNumber(result.getInt(WastedFood.numberString));
+                    food.addReason(result.getString(WastedFood.reasonString));
                     inventoryMap.put(food.getName(), food);
                 }
             } catch (CouchbaseLiteException e) {
@@ -94,7 +96,7 @@ public class WastedFoodInventory implements Inventory {
         return false;
     }
 
-    @Override
+    //@Override
     public boolean saveInventory() {
         try {
             Database database = DatabaseManager.getDatabase(DatabaseManager.wastedFoodDbStr);
@@ -104,8 +106,9 @@ public class WastedFoodInventory implements Inventory {
                 mutableDocument.setString(Food.stockTypeString, food.getValue().getStockType());
                 mutableDocument.setInt(Food.numberString, food.getValue().getNumber());
                 mutableDocument.setString(Food.categoryString, Category.CategoryToString(food.getValue().getCategory()));
-                mutableDocument.setString(Food.expirationDateString, food.getValue().getExpirationDate());
-                mutableDocument.setArray(WastedFood.reason, food.getValue().getReasons());
+                mutableDocument.setString(WastedFood.reasonString, food.getValue().getReason());
+                // FIXME reason should be a list instead of just a string.
+                //mutableDocument.setArray("some", new ArrayList<String>());
                 try {
                     database.save(mutableDocument);
                 } catch (CouchbaseLiteException e) {
@@ -119,12 +122,12 @@ public class WastedFoodInventory implements Inventory {
         return false;
     }
 
-    @Override
+    //@Override
     public boolean syncInventory() {
         return false;
     }
 
-    @Override
+    //@Override
     public boolean deleteInventory() throws Exception {
         DatabaseManager dbmgr = DatabaseManager.getSharedInstance();
         dbmgr.deleteDatabaseForUser(DatabaseManager.inventoryDbStr);
