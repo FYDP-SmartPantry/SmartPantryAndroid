@@ -1,6 +1,11 @@
 package com.uwaterloo.smartpantry.inventory;
 
 
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.StringRequest;
 import com.couchbase.lite.CouchbaseLiteException;
 import com.couchbase.lite.DataSource;
 import com.couchbase.lite.Database;
@@ -13,6 +18,11 @@ import com.couchbase.lite.Result;
 import com.couchbase.lite.ResultSet;
 import com.couchbase.lite.SelectResult;
 import com.uwaterloo.smartpantry.database.DatabaseManager;
+import com.uwaterloo.smartpantry.datalink.DataLink;
+import com.uwaterloo.smartpantry.user.User;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -135,5 +145,62 @@ public class ShoppingList implements Inventory {
         DatabaseManager dbmgr = DatabaseManager.getSharedInstance();
         dbmgr.deleteDatabaseForUser(DatabaseManager.shoppingListDbStr);
         return true;
+    }
+
+    public boolean uploadInventory() {
+        JSONArray jsonArrayForUpload = new JSONArray();
+        try {
+            Database database = DatabaseManager.getDatabase(DatabaseManager.shoppingListDbStr);
+            Query query = QueryBuilder.select(
+                    SelectResult.expression(Meta.id),
+                    SelectResult.property(GroceryItem.nameString),
+                    SelectResult.property(GroceryItem.categoryString),
+                    SelectResult.property(GroceryItem.stockTypeString),
+                    SelectResult.property(GroceryItem.numberString)).from(DataSource.database(database)).orderBy(Ordering.expression(Meta.id));
+            try {
+                ResultSet rs = query.execute();
+                for (Result result : rs) {
+                    JSONObject jsonObject = catIntoJSONObject(result);
+                    jsonArrayForUpload.put(jsonObject);
+                }
+            } catch (CouchbaseLiteException e) {
+                e.printStackTrace();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        //TODO context management. we are assume that datalink is already init
+        if (DataLink.getInstance().isDataLinkInitialized() == false) {
+            return false;
+        } else {
+            try {
+                String url ="http://3.18.111.90:5000/";
+                JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.POST, url, jsonArrayForUpload, (Response.Listener<JSONArray>) response ->
+                    System.out.println(response), (Response.ErrorListener) error -> System.out.println(error.getMessage()));
+                DataLink.getInstance().addToRequestQueue(jsonArrayRequest);
+                return true;
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return false;
+    }
+
+    public boolean downloadInventory(User user) {
+        String url ="http://3.18.111.90:5000/";
+        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.POST, url, null, (Response.Listener<JSONArray>) response ->
+                System.out.println(response), (Response.ErrorListener) error -> System.out.println(error.getMessage()));
+        DataLink.getInstance().addToRequestQueue(jsonArrayRequest);
+        return false;
+    }
+
+    private JSONObject catIntoJSONObject(Result result) throws Exception {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put(GroceryItem.nameString, result.getString(GroceryItem.nameString));
+        jsonObject.put(GroceryItem.categoryString, Category.StringToCategory(result.getString(GroceryItem.categoryString)));
+        jsonObject.put(GroceryItem.stockTypeString, result.getString(GroceryItem.stockTypeString));
+        jsonObject.put(GroceryItem.numberString, new Integer(result.getInt(GroceryItem.numberString)));
+        return jsonObject;
     }
 }
