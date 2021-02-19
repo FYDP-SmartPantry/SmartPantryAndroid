@@ -1,6 +1,8 @@
+
 package com.uwaterloo.smartpantry.data;
 
 import com.uwaterloo.smartpantry.data.model.LoggedInUser;
+import com.uwaterloo.smartpantry.user.User;
 
 import java.io.IOException;
 
@@ -22,7 +24,8 @@ public class LoginDataSource {
             // TODO: handle loggedInUser authentication
             // LoggedInUser fakeUser = new LoggedInUser(java.util.UUID.randomUUID().toString(), "Jane Doe");
             LoggedInUser defaultUser = new LoggedInUser(username, "test");
-            if (username.equals(defaultUsername) && password.equals(defaultPassword)) {
+
+            if (User.login(username, password) == true) {
                 System.out.println(username);
                 return new Result.Success<>(defaultUser);
             }  else {
