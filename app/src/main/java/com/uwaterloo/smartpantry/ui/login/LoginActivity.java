@@ -44,6 +44,15 @@ public class LoginActivity extends AppCompatActivity {
         final Button loginButton = findViewById(R.id.login);
         final ProgressBar loadingProgressBar = findViewById(R.id.loading);
 
+//        Bundle bundle = getIntent().getExtras();
+//        if (bundle != null){
+//            if (bundle.getString("status") == "loggedout") {
+//                usernameEditText.setText("");
+//                passwordEditText.setText("");
+//            }
+//            bundle.clear();
+//        }
+
         loginViewModel.getLoginFormState().observe(this, new Observer<LoginFormState>() {
             @Override
             public void onChanged(@Nullable LoginFormState loginFormState) {
