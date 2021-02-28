@@ -1,13 +1,17 @@
 package com.uwaterloo.smartpantry.ui.myprofile;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 
 import com.uwaterloo.smartpantry.R;
+import com.uwaterloo.smartpantry.ui.login.LoginActivity;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -15,6 +19,8 @@ import com.uwaterloo.smartpantry.R;
  * create an instance of this fragment.
  */
 public class MyprofileFragment extends Fragment {
+    private Button btnSignOut;
+
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -50,10 +56,22 @@ public class MyprofileFragment extends Fragment {
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
     }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_myprofile, container, false);
+        View v = inflater.inflate(R.layout.fragment_myprofile, container, false);
+
+        btnSignOut = v.findViewById(R.id.sign_out_btn);
+        btnSignOut.setOnClickListener(new View.OnClickListener(){
+            public void onClick(View v){
+                Intent intent = new Intent(getActivity(), LoginActivity.class);
+                intent.putExtra("status", "loggedout");
+                startActivity(intent);
+            }
+        });
+
+        return v;
     }
 }
