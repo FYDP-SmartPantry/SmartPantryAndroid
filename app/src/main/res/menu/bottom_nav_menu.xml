@@ -10,12 +10,12 @@
         android:title="Inv" />
 
     <item
-        android:id="@+id/navigation_foodstatus"
-        android:title="Stat" />
+        android:id="@+id/navigation_foodrecommendation"
+        android:title="Recommendation" />
 
     <item
-        android:id="@+id/navigation_shoppinglist"
-        android:title="List" />
+        android:id="@+id/navigation_foodstatus"
+        android:title="Stat" />
 
     <item
         android:id="@+id/navigation_myprofile"

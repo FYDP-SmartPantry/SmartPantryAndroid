@@ -15,12 +15,17 @@ import com.uwaterloo.smartpantry.database.DatabaseManager;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class FoodInventory{
 
     private Map<String, Food> inventoryMap = new HashMap<>();
 
     public FoodInventory() {}
+
+    public Set<String> getKeySet() {
+        return inventoryMap.keySet();
+    }
 
     public void addItemToInventory(Food food) throws Exception {
         if (!inventoryMap.containsKey(food.getName())) {

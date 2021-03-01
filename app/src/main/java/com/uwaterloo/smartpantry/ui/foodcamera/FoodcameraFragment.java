@@ -32,11 +32,17 @@ import androidx.lifecycle.LifecycleOwner;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.uwaterloo.smartpantry.MainActivity;
 import com.uwaterloo.smartpantry.R;
+import com.uwaterloo.smartpantry.database.DatabaseManager;
+import com.uwaterloo.smartpantry.inventory.Category;
+import com.uwaterloo.smartpantry.inventory.Food;
+import com.uwaterloo.smartpantry.inventory.FoodInventory;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
+
+import static com.uwaterloo.smartpantry.database.DatabaseManager.getSharedInstance;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -47,6 +53,9 @@ public class FoodcameraFragment extends Fragment {
     private static final int REQUEST_CODE_PERMISSIONS = 10;
     private static final String FILENAME_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSS";
     private ImageCapture imageCapture = null;
+
+    private FoodInventory foodInventory = new FoodInventory();
+    private DatabaseManager dbManager = getSharedInstance();
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -182,6 +191,29 @@ public class FoodcameraFragment extends Fragment {
         // Can not initialize in onCreate as view is not yet created
         Button cameraButton = (Button) view.findViewById(R.id.camera_button);
         cameraButton.setOnClickListener(this::onClick);
+
+
+        dbManager.initCouchbaseLite(getContext());
+        // TODO: Update to actual username
+        dbManager.openOrCreateDatabaseForUser(getContext(), "test");
+        foodInventory.loadInventory();
+//        registerItem();
         return view;
+    }
+
+    // TODO: Placeholder until UI portion to insert food items
+    public void registerItem() {
+        Food food = new Food();
+        food.setName("Chicken");
+        food.setCategory(Category.CategoryEnum.MEAT);
+        food.setStockType("lbs");
+        food.setNumber(1);
+        food.setExpirationDate("2021/1/3");
+        try {
+            foodInventory.addItemToInventory(food);
+            foodInventory.saveInventory();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
