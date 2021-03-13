@@ -3,22 +3,27 @@
 
     <item
         android:id="@+id/navigation_foodcamera"
+        android:icon="@drawable/ic_baseline_photo_camera_20"
         android:title="Cam" />
 
     <item
         android:id="@+id/navigation_foodinventory"
+        android:icon="@drawable/ic_baseline_format_list_bulleted_20"
         android:title="Inv" />
 
     <item
-        android:id="@+id/navigation_foodrecommendation"
-        android:title="Recommendation" />
-
-    <item
         android:id="@+id/navigation_foodstatus"
+        android:icon="@drawable/ic_baseline_show_chart_20"
         android:title="Stat" />
 
     <item
+        android:id="@+id/navigation_shoppinglist"
+        android:icon="@drawable/ic_baseline_shopping_cart_20"
+        android:title="List" />
+
+    <item
         android:id="@+id/navigation_myprofile"
+        android:icon="@drawable/ic_baseline_account_circle_20"
         android:title="Me" />
 
 </menu>

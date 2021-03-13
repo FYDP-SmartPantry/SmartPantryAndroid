@@ -1,13 +1,29 @@
 package com.uwaterloo.smartpantry.ui.myprofile;
 
+import android.accounts.Account;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import com.bumptech.glide.Glide;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.uwaterloo.smartpantry.R;
+import com.uwaterloo.smartpantry.ui.login.LoginActivity;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -15,6 +31,8 @@ import com.uwaterloo.smartpantry.R;
  * create an instance of this fragment.
  */
 public class MyprofileFragment extends Fragment {
+    private Button btnSignOut;
+
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -22,6 +40,11 @@ public class MyprofileFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+
+    TextView username, email, id;
+    ImageView userProfiePic;
+    private GoogleSignInClient googleApiClient;
+
     public MyprofileFragment() {
         // Required empty public constructor
     }
@@ -49,11 +72,57 @@ public class MyprofileFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
+        googleApiClient = GoogleSignIn.getClient(getActivity(), gso);
     }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_myprofile, container, false);
+        View v = inflater.inflate(R.layout.fragment_myprofile, container, false);
+        GoogleSignInAccount acct = GoogleSignIn.getLastSignedInAccount(getActivity());
+        username = v.findViewById(R.id.name);
+        email = v.findViewById(R.id.email);
+        userProfiePic = v.findViewById(R.id.profile);
+
+        if (acct != null) {
+            username.setText(acct.getDisplayName());
+            email.setText(acct.getEmail());
+            Uri personProfilUrl = acct.getPhotoUrl();
+            Glide.with(this).load(String.valueOf(personProfilUrl)).into(userProfiePic);
+            //String personGivenName = acct.getGivenName();
+            //String personFamilyName = acct.getFamilyName();
+            //String personId = acct.getId();
+        }
+
+        btnSignOut = v.findViewById(R.id.sign_out_btn);
+        btnSignOut.setOnClickListener(new View.OnClickListener(){
+            public void onClick(View v){
+                switch (v.getId()) {
+                    // ...
+                    case R.id.sign_out_btn:
+                        signOut();
+                        break;
+                    // ...
+                }
+
+            }
+        });
+
+        return v;
+    }
+
+    private void signOut() {
+        googleApiClient.signOut().addOnCompleteListener(getActivity(), new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                // ...
+                Toast.makeText(getActivity(), "sign out", Toast.LENGTH_LONG).show();
+            }
+        });
+        Intent intent = new Intent(getActivity(), LoginActivity.class);
+        intent.putExtra("status", "loggedout");
+        startActivity(intent);
     }
 }
