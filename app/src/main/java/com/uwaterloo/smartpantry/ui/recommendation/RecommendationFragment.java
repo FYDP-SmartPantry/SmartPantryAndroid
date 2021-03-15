@@ -84,8 +84,7 @@ public class RecommendationFragment extends Fragment implements VolleyResponseLi
 
     public void initLoad() {
         dbManager.initCouchbaseLite(getContext());
-        // TODO: Update to actual username
-        dbManager.openOrCreateDatabaseForUser(getContext(), "test");
+        dbManager.openOrCreateDatabaseForUser(getContext(), DatabaseManager.currentUser);
         foodInventory.loadInventory();
         Set<String> foodNames = foodInventory.getKeySet();
         recommendation.clearRecipes();

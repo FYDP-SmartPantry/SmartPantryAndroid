@@ -1,14 +1,17 @@
 package com.uwaterloo.smartpantry.stats;
 
 public class RecipeTracking {
-    private int recipeId;
+    final static String recipeIdString = "recipeId";
+    final static String countString = "count";
+
+    private String recipeId;
     private int count;
 
-    public int getRecipeId() {
+    public String getRecipeId() {
         return recipeId;
     }
 
-    public void setRecipeId(int recipeId) {
+    public void setRecipeId(String recipeId) {
         this.recipeId = recipeId;
     }
 

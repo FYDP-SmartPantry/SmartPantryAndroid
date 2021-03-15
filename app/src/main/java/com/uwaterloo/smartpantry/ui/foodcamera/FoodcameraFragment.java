@@ -194,8 +194,7 @@ public class FoodcameraFragment extends Fragment {
 
 
         dbManager.initCouchbaseLite(getContext());
-        // TODO: Update to actual username
-        dbManager.openOrCreateDatabaseForUser(getContext(), "test");
+        dbManager.openOrCreateDatabaseForUser(getContext(), DatabaseManager.currentUser);
         foodInventory.loadInventory();
 //        registerItem();
         return view;

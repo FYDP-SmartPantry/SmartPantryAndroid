@@ -27,7 +27,7 @@ public class DatabaseManager {
     private static Database wastedFoodDb;
     private static Database recipeTrackDb;
 
-    public  String currentUser = null;
+    public static String currentUser = null;
 
     protected DatabaseManager() {}
 
