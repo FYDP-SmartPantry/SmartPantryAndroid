@@ -5,7 +5,6 @@ xmlns:tools="http://schemas.android.com/tools"
 android:id="@+id/main_layout"
 android:layout_width="match_parent"
 android:layout_height="match_parent"
-android:background="#8510d8"
 android:orientation="vertical"
 android:weightSum="4"
 tools:context=".ui.login.LoginActivity">
@@ -41,8 +40,7 @@ tools:context=".ui.login.LoginActivity">
 <RelativeLayout
     android:layout_width="fill_parent"
     android:layout_height="0dp"
-    android:layout_weight="1"
-    android:background="#5b0a91">
+    android:layout_weight="1">
 
     <com.google.android.gms.common.SignInButton
         android:id="@+id/google_sign_in_button"
