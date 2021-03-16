@@ -4,9 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-	
     tools:context=".ui.foodcamera.FoodcameraFragment">
-
 	<Button
 		android:id="@+id/camera_button"
 		android:layout_width="68dp"
@@ -14,13 +12,10 @@
 		android:layout_gravity="bottom|center"
 		android:layout_marginBottom="70dp"
 		android:background="@drawable/camera_button" />
-
 	<androidx.camera.view.PreviewView
 		android:id="@+id/viewFinder"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent">
-
-
 	</androidx.camera.view.PreviewView>
 
 </FrameLayout>
