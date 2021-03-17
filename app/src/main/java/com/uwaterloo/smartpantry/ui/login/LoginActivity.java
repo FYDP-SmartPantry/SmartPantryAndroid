@@ -35,6 +35,7 @@ import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 import com.uwaterloo.smartpantry.MainActivity;
 import com.uwaterloo.smartpantry.R;
+import com.uwaterloo.smartpantry.database.DatabaseManager;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -54,6 +55,10 @@ public class LoginActivity extends AppCompatActivity {
                 switch (v.getId()) {
                     case R.id.google_sign_in_button:
                         signIn();
+                        // Debug testing to bypass google login
+//                        DatabaseManager.currentUser = "test";
+//                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+//                        startActivity(intent);
                         break;
                 }
             }
@@ -82,6 +87,7 @@ public class LoginActivity extends AppCompatActivity {
     private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
         try {
             GoogleSignInAccount account = completedTask.getResult(ApiException.class);
+            DatabaseManager.currentUser = account.getEmail();
             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
             startActivity(intent);
         } catch (ApiException e) {

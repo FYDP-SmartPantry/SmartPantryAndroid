@@ -16,6 +16,7 @@ public class DatabaseManager {
     public static final String inventoryDbStr = "InventoryDB";
     public static final String userInfoDbStr = "userDB";
     public static final String wastedFoodDbStr = "wastedFoodDb";
+    public static final String recipeTrackDbStr = "recipeTrackDb";
 
     private String tag = "dbManager";
 
@@ -24,8 +25,9 @@ public class DatabaseManager {
     private static Database shoppingListDb;
     private static Database userInfoDb;
     private static Database wastedFoodDb;
+    private static Database recipeTrackDb;
 
-    public  String currentUser = null;
+    public static String currentUser = null;
 
     protected DatabaseManager() {}
 
@@ -46,6 +48,8 @@ public class DatabaseManager {
             return shoppingListDb;
         } else if (database_name.equalsIgnoreCase(wastedFoodDbStr)) {
             return wastedFoodDb;
+        } else if (database_name.equalsIgnoreCase(recipeTrackDbStr)) {
+          return recipeTrackDb;
         } else {
             return null;
         }
@@ -65,6 +69,7 @@ public class DatabaseManager {
             inventoryDb = new Database(inventoryDbStr, config);
             shoppingListDb = new Database(shoppingListDbStr, config);
             wastedFoodDb = new Database(wastedFoodDbStr, config);
+            recipeTrackDb = new Database(recipeTrackDbStr, config);
         } catch (com.couchbase.lite.CouchbaseLiteException e) {
             e.printStackTrace();
         }
@@ -83,6 +88,9 @@ public class DatabaseManager {
             }
             if (wastedFoodDb != null) {
                 shoppingListDb.close();
+            }
+            if (recipeTrackDb != null) {
+                recipeTrackDb.close();
             }
         } catch (com.couchbase.lite.CouchbaseLiteException e) {
             e.printStackTrace();
@@ -103,6 +111,9 @@ public class DatabaseManager {
             } else if (dbName.equals(wastedFoodDbStr)) {
                 wastedFoodDb.delete();
                 Log.d(tag, String.format("%s is deleted", wastedFoodDbStr));
+            } else if(dbName.equals(recipeTrackDbStr)) {
+                Log.d(tag, String.format("%s is deleted", recipeTrackDbStr));
+               recipeTrackDb.delete();
             } else {
                 Log.d(tag, String.format("Unrecognized dbName %s", dbName));
             }

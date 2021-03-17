@@ -17,6 +17,8 @@ import com.couchbase.lite.QueryBuilder;
 import com.couchbase.lite.Result;
 import com.couchbase.lite.ResultSet;
 import com.couchbase.lite.SelectResult;
+import com.couchbase.lite.internal.utils.StringUtils;
+import com.uwaterloo.smartpantry.data.UserInfo;
 import com.uwaterloo.smartpantry.database.DatabaseManager;
 import com.uwaterloo.smartpantry.datalink.DataLink;
 import com.uwaterloo.smartpantry.user.User;
@@ -145,6 +147,40 @@ public class ShoppingList implements Inventory {
         DatabaseManager dbmgr = DatabaseManager.getSharedInstance();
         dbmgr.deleteDatabaseForUser(DatabaseManager.shoppingListDbStr);
         return true;
+    }
+
+    public UserInfo getUserInfo() {
+        try {
+            Database database = DatabaseManager.getDatabase(DatabaseManager.userInfoDbStr);
+            Query query = QueryBuilder.select(
+                    SelectResult.expression(Meta.id),
+                    SelectResult.property(UserInfo.usernameString),
+                    SelectResult.property(UserInfo.hashString)).from(DataSource.database(database)).orderBy(Ordering.expression(Meta.id));
+            try {
+                ResultSet rs = query.execute();
+                // Should only return 1 relevant result
+                Result result = rs.next();
+                UserInfo userInfo = new UserInfo();
+                userInfo.setUsername(result.getString(UserInfo.usernameString));
+                userInfo.setHash(result.getString(UserInfo.hashString));
+
+                return userInfo;
+            } catch (CouchbaseLiteException e) {
+                e.printStackTrace();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new UserInfo();
+    }
+
+    public boolean hasMealPlanAccount() {
+        UserInfo userInfo = getUserInfo();
+        if (StringUtils.isEmpty(userInfo.getUsername()) || StringUtils.isEmpty(userInfo.getHash())) {
+            return false;
+        } else {
+            return true;
+        }
     }
 
     public boolean uploadInventory() {
