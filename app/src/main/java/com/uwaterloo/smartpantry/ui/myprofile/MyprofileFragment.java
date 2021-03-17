@@ -1,6 +1,5 @@
 package com.uwaterloo.smartpantry.ui.myprofile;
 
-import android.accounts.Account;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -42,8 +41,8 @@ public class MyprofileFragment extends Fragment {
     private String mParam2;
 
     TextView username, email, id;
-    ImageView userProfiePic;
-    private GoogleSignInClient googleApiClient;
+    ImageView userProfileImg;
+    private GoogleSignInClient googleSignInClient;
 
     public MyprofileFragment() {
         // Required empty public constructor
@@ -72,8 +71,9 @@ public class MyprofileFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
-        googleApiClient = GoogleSignIn.getClient(getActivity(), gso);
+        googleSignInClient = GoogleSignIn.getClient(getActivity(), gso);
     }
 
     @Override
@@ -81,32 +81,26 @@ public class MyprofileFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_myprofile, container, false);
+
         GoogleSignInAccount acct = GoogleSignIn.getLastSignedInAccount(getActivity());
         username = v.findViewById(R.id.name);
         email = v.findViewById(R.id.email);
-        userProfiePic = v.findViewById(R.id.profile);
+        userProfileImg = v.findViewById(R.id.profile);
 
         if (acct != null) {
             username.setText(acct.getDisplayName());
             email.setText(acct.getEmail());
-            Uri personProfilUrl = acct.getPhotoUrl();
-            Glide.with(this).load(String.valueOf(personProfilUrl)).into(userProfiePic);
-            //String personGivenName = acct.getGivenName();
-            //String personFamilyName = acct.getFamilyName();
-            //String personId = acct.getId();
+            Uri personProfilUri =acct.getPhotoUrl();
+            Glide.with(this).load(String.valueOf(personProfilUri)).into(userProfileImg);
         }
-
         btnSignOut = v.findViewById(R.id.sign_out_btn);
         btnSignOut.setOnClickListener(new View.OnClickListener(){
             public void onClick(View v){
                 switch (v.getId()) {
-                    // ...
                     case R.id.sign_out_btn:
                         signOut();
                         break;
-                    // ...
                 }
-
             }
         });
 
@@ -114,13 +108,13 @@ public class MyprofileFragment extends Fragment {
     }
 
     private void signOut() {
-        googleApiClient.signOut().addOnCompleteListener(getActivity(), new OnCompleteListener<Void>() {
+        googleSignInClient.signOut().addOnCompleteListener(getActivity(), new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
-                // ...
                 Toast.makeText(getActivity(), "sign out", Toast.LENGTH_LONG).show();
             }
         });
+
         Intent intent = new Intent(getActivity(), LoginActivity.class);
         intent.putExtra("status", "loggedout");
         startActivity(intent);

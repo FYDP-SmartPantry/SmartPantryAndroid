@@ -2,11 +2,11 @@ package com.uwaterloo.smartpantry.ui.login;
 
 import android.app.Activity;
 
-import androidx.annotation.NonNull;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
 import android.content.Intent;
+import android.content.pm.SigningInfo;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
@@ -18,28 +18,30 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.auth.api.signin.GoogleSignInResult;
-import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.SignInButton;
+import com.google.android.gms.common.api.Api;
 import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.tasks.Task;
 import com.uwaterloo.smartpantry.MainActivity;
 import com.uwaterloo.smartpantry.R;
 import com.uwaterloo.smartpantry.database.DatabaseManager;
 
-public class LoginActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener {
+public class LoginActivity extends AppCompatActivity {
 
     SignInButton signInButton;
-    private GoogleSignInClient googleApiClient;
-    private static final int RC_SIGN_IN = 0;
+    private GoogleSignInClient googleSignInClient;
+    private static final int RC_SIGIN_IN = 0;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -59,42 +61,26 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 //                        startActivity(intent);
                         break;
                 }
-
             }
         });
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
-
-        googleApiClient = GoogleSignIn.getClient(this, gso);
-
+        googleSignInClient = GoogleSignIn.getClient(this, gso);
     }
 
     private void signIn() {
-        Intent signInIntent = googleApiClient.getSignInIntent();
-        startActivityForResult(signInIntent, RC_SIGN_IN);
+        Intent signInIntent = googleSignInClient.getSignInIntent();
+        startActivityForResult(signInIntent, RC_SIGIN_IN);
     }
-    /*
-    @Override
-    protected void onStart() {
-        super.onStart();
-        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
 
-    }
-    */
-
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-
-    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == RC_SIGN_IN) {
+        if (requestCode == RC_SIGIN_IN) {
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             handleSignInResult(task);
-
         }
     }
 
@@ -105,7 +91,9 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
             startActivity(intent);
         } catch (ApiException e) {
-            Log.v("Error", "signInResutl:failed code=" + e.getStatusCode());
+            e.printStackTrace();
+            Log.v("Error", "message" + e.getMessage());
+            Log.v("Error", "signInResult: failed code=" + e.getStatusCode());
         }
     }
 }
