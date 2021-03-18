@@ -1,13 +1,27 @@
 package com.uwaterloo.smartpantry.ui.shoppinglist;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.uwaterloo.smartpantry.R;
+import com.uwaterloo.smartpantry.adapter.ShoppingItemAdapter;
+import com.uwaterloo.smartpantry.inventory.GroceryItem;
+import com.uwaterloo.smartpantry.inventory.ShoppingList;
+import com.uwaterloo.smartpantry.ui.addshoppingitem.AddItemToShoppinglistFragment;
+import com.uwaterloo.smartpantry.ui.camera.CameraFragment;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -22,6 +36,12 @@ public class ShoppinglistFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+
+    View v;
+    private RecyclerView recyclerView;
+
+    private List<GroceryItem> shoppingList = new ArrayList<>();
+
     public ShoppinglistFragment() {
         // Required empty public constructor
     }
@@ -49,11 +69,41 @@ public class ShoppinglistFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+        ShoppingList shoppingListobj = ShoppingList.getInstance();
+        shoppingListobj.loadTestData();
+        shoppingList = shoppingListobj.getShoppingList();
     }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_shoppinglist, container, false);
+        View view =  inflater.inflate(R.layout.fragment_shoppinglist, container, false);
+
+        FloatingActionButton buttonAddShoppingItem = view.findViewById(R.id.shoppinglistadd_fap);
+        buttonAddShoppingItem.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AddItemToShoppinglistFragment fragment = new AddItemToShoppinglistFragment();
+                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                fragmentTransaction.replace(((ViewGroup)getView().getParent()).getId(), fragment);
+                fragmentTransaction.addToBackStack(null);
+                fragmentTransaction.commit();
+
+            }
+        });
+
+
+        RecyclerView recyclerView = view.findViewById(R.id.shopping_list_recycler_view);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        recyclerView.setHasFixedSize(true);
+
+        ShoppingItemAdapter adapter = new ShoppingItemAdapter();
+        // ShoppingItemAdapter adapter = new ShoppingItemAdapter(getContext(), shoppingList);
+        adapter.setShoppingList(shoppingList);
+        recyclerView.setAdapter(adapter);
+
+        return view;
     }
 }

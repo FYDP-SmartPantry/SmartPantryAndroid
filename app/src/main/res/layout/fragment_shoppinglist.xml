@@ -1,22 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.shoppinglist.ShoppinglistFragment">
+    android:id="@+id/shoppinglistfrag"
+    tools:context=".ui.shoppinglist.ShoppinglistFragment"
+    android:paddingBottom="?attr/actionBarSize">
 
-    <TextView
-        android:id="@+id/text_notifications"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/shopping_list_recycler_view"
         android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:listitem="@layout/shoppinglistitem"/>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:textAlignment="center"
-        android:textSize="20sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-</FrameLayout>
+        android:id="@+id/shoppinglistadd_fap"
+        android:src="@drawable/ic_shoppingadd"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="32dp"/>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

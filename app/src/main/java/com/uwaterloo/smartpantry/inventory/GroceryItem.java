@@ -13,6 +13,11 @@ public class GroceryItem implements Item {
     Category.CategoryEnum category = null;
 
     public GroceryItem() {}
+    public GroceryItem(String name, int quantity) {
+        this.name = name;
+        this.number = quantity;
+    }
+
     public GroceryItem(Item item) {
         this.name = item.getName();
         this.stockType = item.getStockType();
