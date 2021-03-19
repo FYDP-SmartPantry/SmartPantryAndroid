@@ -5,10 +5,13 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -19,6 +22,7 @@ import com.uwaterloo.smartpantry.inventory.GroceryItem;
 import com.uwaterloo.smartpantry.inventory.ShoppingList;
 import com.uwaterloo.smartpantry.ui.addshoppingitem.AddItemToShoppinglistFragment;
 import com.uwaterloo.smartpantry.ui.camera.CameraFragment;
+import com.uwaterloo.smartpantry.ui.recommendation.RecommendationFragment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,9 +41,8 @@ public class ShoppinglistFragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
-    View v;
     private RecyclerView recyclerView;
-
+    private boolean isOpen = false;
     private List<GroceryItem> shoppingList = new ArrayList<>();
 
     public ShoppinglistFragment() {
@@ -103,6 +106,64 @@ public class ShoppinglistFragment extends Fragment {
         // ShoppingItemAdapter adapter = new ShoppingItemAdapter(getContext(), shoppingList);
         adapter.setShoppingList(shoppingList);
         recyclerView.setAdapter(adapter);
+
+        new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                ShoppingList shoppingListobj = ShoppingList.getInstance();
+                shoppingListobj.removeItemFromInventory(adapter.getGroceryItemAt(viewHolder.getAdapterPosition()));
+                adapter.notifyDataSetChanged();
+                Toast.makeText(getActivity(), "item removed", Toast.LENGTH_SHORT).show();
+            }
+        }).attachToRecyclerView(recyclerView);
+
+        //for edit item. do we need this?
+//        adapter.setOnItemClickListener(new ShoppingItemAdapter.OnItemClickListener() {
+//            @Override
+//            public void onItemClick(GroceryItem item) {
+//                AddItemToShoppinglistFragment fragment = new AddItemToShoppinglistFragment();
+//                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+//                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+//                fragmentTransaction.replace(((ViewGroup)getView().getParent()).getId(), fragment);
+//                fragmentTransaction.addToBackStack(null);
+//                fragmentTransaction.commit();
+//            }
+//        });
+
+        FloatingActionButton buttonRecommendation = view.findViewById(R.id.shoppinglistrecommd_fap);
+        buttonAddShoppingItem.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                RecommendationFragment fragment = new RecommendationFragment();
+                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                fragmentTransaction.replace(((ViewGroup)getView().getParent()).getId(), fragment);
+                fragmentTransaction.addToBackStack(null);
+                fragmentTransaction.commit();
+            }
+        });
+
+
+        isOpen = false;
+        FloatingActionButton buttonMenu = view.findViewById(R.id.shoppinglistmenu_fap);
+        buttonMenu.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (isOpen) {
+                    buttonAddShoppingItem.setVisibility(View.INVISIBLE);
+                    isOpen = false;
+                } else {
+                    buttonAddShoppingItem.setVisibility(View.VISIBLE);
+                    isOpen = true;
+                }
+            }
+        });
+
 
         return view;
     }

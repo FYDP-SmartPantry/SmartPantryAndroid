@@ -4,6 +4,8 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -18,6 +20,7 @@ import java.util.List;
 public class ShoppingItemAdapter extends RecyclerView.Adapter<ShoppingItemAdapter.ShoppingItemHolder>{
 
     private List<GroceryItem> shoppingList = new ArrayList<>();
+    private OnItemClickListener listener;
     //Context context;
 
 //    public ShoppingItemAdapter(Context context, List<GroceryItem> shoppingList) {
@@ -51,6 +54,10 @@ public class ShoppingItemAdapter extends RecyclerView.Adapter<ShoppingItemAdapte
         notifyDataSetChanged();
     }
 
+    public GroceryItem getGroceryItemAt(int position) {
+        return shoppingList.get(position);
+    }
+
     class ShoppingItemHolder extends RecyclerView.ViewHolder {
 
         private TextView textViewTitle;
@@ -60,6 +67,24 @@ public class ShoppingItemAdapter extends RecyclerView.Adapter<ShoppingItemAdapte
             super(itemView);
             textViewTitle = itemView.findViewById(R.id.text_view_shoppingitemname);
             textViewQuantity = itemView.findViewById(R.id.text_view_quantity);
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    int position = getAdapterPosition();
+                    if (listener != null && position != RecyclerView.NO_POSITION) {
+                        listener.onItemClick(shoppingList.get(position));
+                    }
+                }
+            });
         }
+    }
+
+    public interface OnItemClickListener {
+        void onItemClick(GroceryItem item);
+    }
+
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        this.listener = listener;
     }
 }

@@ -17,8 +17,36 @@
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/shoppinglistadd_fap"
+        android:id="@+id/shoppinglistmenu_fap"
         android:src="@drawable/ic_shoppingadd"
+        android:clickable="true"
+        android:focusable="true"
+        android:backgroundTint="@color/colorPrimary"
+        android:tint="@android:color/white"
         android:layout_gravity="bottom|end"
         android:layout_margin="32dp"/>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/shoppinglistadd_fap"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:clickable="true"
+        android:focusable="true"
+        android:visibility="invisible"
+        android:src="@drawable/ic_add_24"
+        android:layout_marginBottom="100dp"
+        android:layout_marginRight="32dp"/>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/shoppinglistrecommd_fap"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:clickable="true"
+        android:focusable="true"
+        android:visibility="invisible"
+        android:src="@drawable/ic_recommdlist_add_24"
+        android:layout_marginBottom="170dp"
+        android:layout_marginRight="32dp"/>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

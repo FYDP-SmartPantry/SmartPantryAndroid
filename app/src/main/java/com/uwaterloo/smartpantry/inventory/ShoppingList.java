@@ -78,25 +78,6 @@ public class ShoppingList {
         shoppingList.add(new GroceryItem("orange", 4));
         shoppingList.add(new GroceryItem("strawberry", 5));
         shoppingList.add(new GroceryItem("mango", 20));
-        shoppingList.add(new GroceryItem("gree", 20));
-        shoppingList.add(new GroceryItem("banana", 2));
-        shoppingList.add(new GroceryItem("apple", 3));
-        shoppingList.add(new GroceryItem("orange", 4));
-        shoppingList.add(new GroceryItem("strawberry", 5));
-        shoppingList.add(new GroceryItem("mango", 20));
-        shoppingList.add(new GroceryItem("gree", 20));
-        shoppingList.add(new GroceryItem("banana", 2));
-        shoppingList.add(new GroceryItem("apple", 3));
-        shoppingList.add(new GroceryItem("orange", 4));
-        shoppingList.add(new GroceryItem("strawberry", 5));
-        shoppingList.add(new GroceryItem("mango", 20));
-        shoppingList.add(new GroceryItem("gree", 20));
-        shoppingList.add(new GroceryItem("banana", 2));
-        shoppingList.add(new GroceryItem("apple", 3));
-        shoppingList.add(new GroceryItem("orange", 4));
-        shoppingList.add(new GroceryItem("strawberry", 5));
-        shoppingList.add(new GroceryItem("mango", 20));
-        shoppingList.add(new GroceryItem("gree", 20));
     }
     /*
     * Load inventory regarding the database operations
