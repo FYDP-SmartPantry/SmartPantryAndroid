@@ -36,7 +36,7 @@ import java.util.Map;
 * */
 public class ShoppingList {
 
-    public List<GroceryItem> shoppingList = new ArrayList<>();;
+    public List<GroceryItem> shoppingList = new ArrayList<>();
     private static ShoppingList instance;
 
     private ShoppingList(){}
