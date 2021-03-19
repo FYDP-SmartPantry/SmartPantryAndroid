@@ -1,46 +1,31 @@
 package com.uwaterloo.smartpantry.inventory;
 
-public class GroceryItem implements Item {
+public class GroceryItem {
 
     final static String nameString = "foodname";
-    final static String stockTypeString = "stockType";
     final static String numberString = "count";
-    final static String categoryString = "category";
-
+    final static String stockString = "stockType";
     String name = null;
-    String stockType = null;
     int number = 0;
-    Category.CategoryEnum category = null;
+    String stockType = null;
+
 
     public GroceryItem() {}
-    public GroceryItem(Item item) {
-        this.name = item.getName();
-        this.stockType = item.getStockType();
-        this.number = item.getNumber();
-        this.category = item.getCategory();
+    public GroceryItem(String name, int quantity, String stockType) {
+        this.name = name;
+        this.number = quantity;
+        this.stockType = stockType;
     }
 
-    @Override
     public String getName() { return this.name; }
 
-    @Override
     public void setName(String name) { this.name = name; }
 
-    @Override
-    public String getStockType() { return this.stockType; }
-
-    @Override
-    public void setStockType(String stockType) { this.stockType = stockType; }
-
-    @Override
     public int getNumber() { return this.number; }
 
-    @Override
     public void setNumber(int number) { this.number = number; }
 
-    @Override
-    public Category.CategoryEnum getCategory() { return this.category; }
+    public String getStockType() { return this.stockType; }
 
-    @Override
-    public void setCategory(Category.CategoryEnum category) { this.category = category; }
+    public void setStockType(String stockType) { this.stockType = stockType; }
 }

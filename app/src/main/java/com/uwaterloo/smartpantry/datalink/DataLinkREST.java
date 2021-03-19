@@ -6,13 +6,17 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.uwaterloo.smartpantry.data.UserInfo;
+import com.uwaterloo.smartpantry.inventory.GroceryItem;
+import com.uwaterloo.smartpantry.inventory.ShoppingList;
 import com.uwaterloo.smartpantry.user.User;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class DataLinkREST {
@@ -123,6 +127,13 @@ public class DataLinkREST {
             }
         });
         DataLink.getInstance().addToRequestQueue(jsonObjectRequest);
+    }
+
+    public static List<GroceryItem> GetMockShoppingList() {
+        List<GroceryItem> shoppingList = new ArrayList<>();
+        shoppingList.add(new GroceryItem("blueberries",3, "lbs"));
+        shoppingList.add(new GroceryItem("rhubarb", 2, "lbs"));
+        return shoppingList;
     }
 
     public static void SetupMealPlan(String username, VolleyResponseListener volleyResponseListener) {
