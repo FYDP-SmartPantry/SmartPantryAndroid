@@ -37,6 +37,8 @@ import java.util.Map;
 public class ShoppingList {
 
     public List<GroceryItem> shoppingList = new ArrayList<>();
+    public List<GroceryItem> recommendList = new ArrayList<>();
+
     private static ShoppingList instance;
 
     private ShoppingList(){}
@@ -79,62 +81,55 @@ public class ShoppingList {
         shoppingList.add(new GroceryItem("strawberry", 5));
         shoppingList.add(new GroceryItem("mango", 20));
     }
+
     /*
     * Load inventory regarding the database operations
     * */
-//    public boolean loadInventory() {
-//        try {
-//            Database database = DatabaseManager.getDatabase(DatabaseManager.shoppingListDbStr);
-//            Query query = QueryBuilder.select(
-//                    SelectResult.expression(Meta.id),
-//                    SelectResult.property(GroceryItem.nameString),
-//                    SelectResult.property(GroceryItem.categoryString),
-//                    SelectResult.property(GroceryItem.stockTypeString),
-//                    SelectResult.property(GroceryItem.numberString)).from(DataSource.database(database)).orderBy(Ordering.expression(Meta.id));
-//            try {
-//                ResultSet rs = query.execute();
-//                for (Result result : rs) {
-//                    GroceryItem item = new GroceryItem();
-//                    item.setName(result.getString(GroceryItem.nameString));
-//                    item.setCategory(Category.StringToCategory(result.getString(GroceryItem.categoryString)));
-//                    item.setStockType(result.getString(GroceryItem.stockTypeString));
-//                    item.setNumber(result.getInt(GroceryItem.numberString));
-//                    shoppingList.put(item.getName(), item);
-//                }
-//            } catch (CouchbaseLiteException e) {
-//                e.printStackTrace();
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        return false;
-//    }
-
-//    public boolean saveInventory() {
-//        try {
-//            Database database = DatabaseManager.getDatabase(DatabaseManager.shoppingListDbStr);
-//            for (Map.Entry<String, Item> item : shoppingList.entrySet()) {
-//                MutableDocument mutableDocument = new MutableDocument();
-//                mutableDocument.setString(GroceryItem.nameString, item.getValue().getName());
-//                mutableDocument.setString(GroceryItem.stockTypeString, item.getValue().getStockType());
-//                mutableDocument.setInt(GroceryItem.numberString, item.getValue().getNumber());
-//                mutableDocument.setString(GroceryItem.categoryString, Category.CategoryToString(item.getValue().getCategory()));
-//                try {
-//                    database.save(mutableDocument);
-//                } catch (CouchbaseLiteException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//            return true;
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        return false;
-//    }
-
-    public boolean syncInventory() {
-        return true;
+    public boolean loadInventory() {
+        try {
+            Database database = DatabaseManager.getDatabase(DatabaseManager.shoppingListDbStr);
+            Query query = QueryBuilder.select(
+                    SelectResult.expression(Meta.id),
+                    SelectResult.property(GroceryItem.nameString),
+                    SelectResult.property(GroceryItem.numberString)).from(DataSource.database(database)).orderBy(Ordering.expression(Meta.id));
+            try {
+                ResultSet rs = query.execute();
+                for (Result result : rs) {
+                    GroceryItem item = new GroceryItem(result.getString(GroceryItem.nameString), result.getInt(GroceryItem.numberString));
+                    shoppingList.add(item);
+                }
+            } catch (CouchbaseLiteException e) {
+                e.printStackTrace();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
     }
+
+    public boolean saveInventory() {
+        try {
+            Database database = DatabaseManager.getDatabase(DatabaseManager.shoppingListDbStr);
+            for (GroceryItem item : shoppingList) {
+                MutableDocument mutableDocument = new MutableDocument();
+                mutableDocument.setString(GroceryItem.nameString, item.getName());
+                mutableDocument.setInt(GroceryItem.numberString, item.getNumber());
+                try {
+                     database.save(mutableDocument);
+                } catch (CouchbaseLiteException e) {
+                    e.printStackTrace();
+                }
+            }
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+//    public boolean syncInventory() {
+//        return true;
+//    }
 
     public boolean deleteInventory() {
         DatabaseManager dbmgr = DatabaseManager.getSharedInstance();
@@ -176,6 +171,7 @@ public class ShoppingList {
 //        }
 //    }
 
+    //TODO: I do not think we need to upload the shopping list to cloud anymore
 //    public boolean uploadInventory() {
 //        JSONArray jsonArrayForUpload = new JSONArray();
 //        try {
@@ -227,8 +223,6 @@ public class ShoppingList {
 //    private JSONObject catIntoJSONObject(Result result) throws Exception {
 //        JSONObject jsonObject = new JSONObject();
 //        jsonObject.put(GroceryItem.nameString, result.getString(GroceryItem.nameString));
-//        jsonObject.put(GroceryItem.categoryString, Category.StringToCategory(result.getString(GroceryItem.categoryString)));
-//        jsonObject.put(GroceryItem.stockTypeString, result.getString(GroceryItem.stockTypeString));
 //        jsonObject.put(GroceryItem.numberString, new Integer(result.getInt(GroceryItem.numberString)));
 //        return jsonObject;
 //    }

@@ -79,13 +79,13 @@
 
             </RelativeLayout>
 
-            <androidx.constraintlayout.widget.ConstraintLayout
+            <LinearLayout
                 android:id="@+id/info_layout"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_below="@+id/profile_layout"
-                android:layout_margin="5dp"
                 android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
                 android:background="#fff"
                 android:elevation="4dp"
                 android:orientation="vertical"
@@ -94,44 +94,41 @@
                 android:paddingRight="5dp"
                 android:paddingBottom="20dp">
 
-                <TextView
-                    android:id="@+id/textView1"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="5dp"
-                    android:layout_marginTop="5dp"
-                    android:clickable="true"
-                    android:text="DOB: "
-                    android:textStyle="bold"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
 
-                <TextView
-                    android:id="@+id/textView2"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_margin="5dp"
-                    android:layout_marginLeft="8dp"
-                    android:layout_marginTop="8dp"
-                    android:clickable="true"
-                    android:text="Gender: "
-                    android:textStyle="bold"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/textView1" />
+                    android:orientation="horizontal"
+                    >
+                    <TextView
+                        android:id="@+id/textView3"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="5dp"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginTop="8dp"
+                        android:clickable="true"
+                        android:text="ID: "
+                        android:textStyle="bold"
+                        app:layout_constraintLeft_toLeftOf="parent"
+                        />
+                    <TextView
+                        android:id="@+id/personid"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="5dp"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginTop="8dp"
+                        android:clickable="true"
+                        android:text="9876543210"
+                        app:layout_constraintLeft_toRightOf="@+id/textView3"
+                        />
+                </LinearLayout>
 
-                <TextView
-                    android:id="@+id/textView3"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_margin="5dp"
-                    android:layout_marginLeft="8dp"
-                    android:layout_marginTop="8dp"
-                    android:clickable="true"
-                    android:text="Mobile: "
-                    android:textStyle="bold"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/textView2" />
-
+                    android:orientation="horizontal">
                 <TextView
                     android:id="@+id/textView4"
                     android:layout_width="wrap_content"
@@ -146,42 +143,6 @@
                     app:layout_constraintTop_toBottomOf="@+id/textView3" />
 
                 <TextView
-                    android:id="@+id/dob"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="5dp"
-                    android:layout_marginLeft="8dp"
-                    android:layout_marginTop="8dp"
-                    android:clickable="true"
-                    android:text="01/01/2021"
-                    app:layout_constraintLeft_toRightOf="@+id/textView1"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <TextView
-                    android:id="@+id/gender"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="5dp"
-                    android:layout_marginLeft="8dp"
-                    android:layout_marginTop="8dp"
-                    android:clickable="true"
-                    android:text="Male"
-                    app:layout_constraintLeft_toRightOf="@+id/textView2"
-                    app:layout_constraintTop_toBottomOf="@+id/dob" />
-
-                <TextView
-                    android:id="@+id/mobileNumber"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="5dp"
-                    android:layout_marginLeft="8dp"
-                    android:layout_marginTop="8dp"
-                    android:clickable="true"
-                    android:text="9876543210"
-                    app:layout_constraintLeft_toRightOf="@+id/textView3"
-                    app:layout_constraintTop_toBottomOf="@+id/gender" />
-
-                <TextView
                     android:id="@+id/email"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -191,22 +152,20 @@
                     android:clickable="true"
                     android:text="testuser@gmail.com"
                     app:layout_constraintLeft_toRightOf="@+id/textView4"
-                    app:layout_constraintTop_toBottomOf="@+id/mobileNumber" />
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_below="@+id/info_layout">
-
-                <Button
-                    android:id="@+id/sign_out_btn"
+                    app:layout_constraintTop_toBottomOf="@+id/personid" />
+                </LinearLayout>
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:text="Sign out"
-                    android:textColor="@color/design_default_color_primary" />
-
-            </RelativeLayout>
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center">
+                    <Button
+                        android:id="@+id/sign_out_btn"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Sign out"
+                        android:textColor="@color/design_default_color_primary" />
+                </LinearLayout>
+            </LinearLayout>
         </RelativeLayout>
 </LinearLayout>
