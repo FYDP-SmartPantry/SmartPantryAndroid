@@ -3,20 +3,28 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     tools:context=".ui.recommendation.RecommendationFragment">
-
 
     <Button
         android:id="@+id/addRecommendationsToShoppingList"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Add to Shopping List"/>
+        android:text="Add to Shopping List"
+        android:textColor="#FFFFFF"
+        app:backgroundTint="?attr/colorPrimary"
+        android:textSize="16dp"
+        style="@style/Widget.MaterialComponents.Button.TextButton"/>
     <Button
         android:id="@+id/BackToShoppingList"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Back"/>
+        android:text="Back"
+        android:textColor="#FFFFFF"
+        app:backgroundTint="?attr/colorPrimary"
+        android:textSize="16dp"
+        style="@style/Widget.MaterialComponents.Button.TextButton"/>
     <ListView
         android:id="@+id/recommended_list"
         android:layout_width="match_parent"

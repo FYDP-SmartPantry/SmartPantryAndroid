@@ -55,8 +55,10 @@ public class RecommendationItemAdapter extends BaseAdapter {
         GroceryItem item = getItem(position);
         TextView tv_name = convertView.findViewById(R.id.RecommendationItemName);
         TextView tv_quantity = convertView.findViewById(R.id.RecommendationItemQuantity);
+        TextView tv_stock = convertView.findViewById(R.id.RecommendationItemStock);
         tv_name.setText(item.getName());
         tv_quantity.setText(String.valueOf(item.getNumber()));
+        tv_stock.setText(item.getStockType());
         CheckBox cb_check = convertView.findViewById(R.id.rowCheckBox);
 
         cb_check.setOnClickListener(new View.OnClickListener() {

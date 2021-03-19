@@ -1,6 +1,8 @@
 package com.uwaterloo.smartpantry.inventory;
 
 
+import androidx.annotation.NonNull;
+
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -75,11 +77,11 @@ public class ShoppingList {
     }
 
     public void loadTestData() {
-        shoppingList.add(new GroceryItem("banana", 2));
-        shoppingList.add(new GroceryItem("apple", 3));
-        shoppingList.add(new GroceryItem("orange", 4));
-        shoppingList.add(new GroceryItem("strawberry", 5));
-        shoppingList.add(new GroceryItem("mango", 20));
+        shoppingList.add(new GroceryItem("banana", 2, "lbs"));
+        shoppingList.add(new GroceryItem("apple", 3, "lbs"));
+        shoppingList.add(new GroceryItem("orange", 4, "lbs"));
+        shoppingList.add(new GroceryItem("strawberry", 5, "lbs"));
+        shoppingList.add(new GroceryItem("mango", 20, "lbs"));
     }
 
     /*
@@ -91,11 +93,12 @@ public class ShoppingList {
             Query query = QueryBuilder.select(
                     SelectResult.expression(Meta.id),
                     SelectResult.property(GroceryItem.nameString),
+                    SelectResult.property(GroceryItem.stockString),
                     SelectResult.property(GroceryItem.numberString)).from(DataSource.database(database)).orderBy(Ordering.expression(Meta.id));
             try {
                 ResultSet rs = query.execute();
                 for (Result result : rs) {
-                    GroceryItem item = new GroceryItem(result.getString(GroceryItem.nameString), result.getInt(GroceryItem.numberString));
+                    GroceryItem item = new GroceryItem(result.getString(GroceryItem.nameString), result.getInt(GroceryItem.numberString), result.getString(GroceryItem.stockString));
                     shoppingList.add(item);
                 }
             } catch (CouchbaseLiteException e) {
@@ -113,6 +116,7 @@ public class ShoppingList {
             for (GroceryItem item : shoppingList) {
                 MutableDocument mutableDocument = new MutableDocument();
                 mutableDocument.setString(GroceryItem.nameString, item.getName());
+                mutableDocument.setString(GroceryItem.stockString, item.getStockType());
                 mutableDocument.setInt(GroceryItem.numberString, item.getNumber());
                 try {
                      database.save(mutableDocument);

@@ -131,8 +131,8 @@ public class DataLinkREST {
 
     public static List<GroceryItem> GetMockShoppingList() {
         List<GroceryItem> shoppingList = new ArrayList<>();
-        shoppingList.add(new GroceryItem("blueberries",3));
-        shoppingList.add(new GroceryItem("rhubarb", 2));
+        shoppingList.add(new GroceryItem("blueberries",3, "lbs"));
+        shoppingList.add(new GroceryItem("rhubarb", 2, "lbs"));
         return shoppingList;
     }
 

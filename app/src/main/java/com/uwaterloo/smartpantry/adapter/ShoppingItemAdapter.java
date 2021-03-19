@@ -42,6 +42,7 @@ public class ShoppingItemAdapter extends RecyclerView.Adapter<ShoppingItemAdapte
         GroceryItem item = shoppingList.get(position);
         holder.textViewTitle.setText(item.getName());
         holder.textViewQuantity.setText(String.valueOf(item.getNumber()));
+        holder.textviewStock.setText(item.getStockType());
     }
 
     @Override
@@ -62,12 +63,12 @@ public class ShoppingItemAdapter extends RecyclerView.Adapter<ShoppingItemAdapte
 
         private TextView textViewTitle;
         private TextView textViewQuantity;
-
+        private TextView textviewStock;
         public ShoppingItemHolder(@NonNull View itemView) {
             super(itemView);
             textViewTitle = itemView.findViewById(R.id.text_view_shoppingitemname);
             textViewQuantity = itemView.findViewById(R.id.text_view_quantity);
-
+            textviewStock = itemView.findViewById(R.id.text_view_stocktype);
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

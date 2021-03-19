@@ -33,7 +33,7 @@ public class AddItemToShoppinglistFragment extends Fragment {
 
     private EditText editTextName;
     private EditText editTextQuantity;
-
+    private EditText editTextStockType;
     public AddItemToShoppinglistFragment() {
         // Required empty public constructor
     }
@@ -73,6 +73,7 @@ public class AddItemToShoppinglistFragment extends Fragment {
 
         editTextName = view.findViewById(R.id.edit_shoppingitem_name);
         editTextQuantity = view.findViewById(R.id.edit_shoppingitem_quantity);
+        editTextStockType = view.findViewById(R.id.edit_shoppingitem_stockType);
         Button backButton = view.findViewById(R.id.backAddItem);
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -98,13 +99,13 @@ public class AddItemToShoppinglistFragment extends Fragment {
     private void saveItem() {
         String name = editTextName.getText().toString();
         String quantity = editTextQuantity.getText().toString();
-
-        if (name.trim().isEmpty() || quantity.trim().isEmpty()) {
+        String stock = editTextStockType.getText().toString();
+        if (name.trim().isEmpty() || quantity.trim().isEmpty() || stock.trim().isEmpty()) {
             Toast.makeText(getContext(), "please enter valid item name and quantity", Toast.LENGTH_SHORT).show();
             return;
         }
 
         ShoppingList shoppingList = ShoppingList.getInstance();
-        shoppingList.addItemToInventory(new GroceryItem(name, Integer.parseInt(quantity)));
+        shoppingList.addItemToInventory(new GroceryItem(name, Integer.parseInt(quantity), stock));
     }
 }
