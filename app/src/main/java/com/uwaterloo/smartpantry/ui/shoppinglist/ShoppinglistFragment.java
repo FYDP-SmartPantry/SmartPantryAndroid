@@ -136,7 +136,7 @@ public class ShoppinglistFragment extends Fragment {
 //        });
 
         FloatingActionButton buttonRecommendation = view.findViewById(R.id.shoppinglistrecommd_fap);
-        buttonAddShoppingItem.setOnClickListener(new View.OnClickListener() {
+        buttonRecommendation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 RecommendationFragment fragment = new RecommendationFragment();
@@ -148,6 +148,19 @@ public class ShoppinglistFragment extends Fragment {
             }
         });
 
+        FloatingActionButton buttonClear = view.findViewById(R.id.shoppinglistclear_fap);
+        buttonClear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ShoppingList shoppingListobj = ShoppingList.getInstance();
+                shoppingListobj.clearInventory();
+                buttonAddShoppingItem.setVisibility(View.INVISIBLE);
+                buttonRecommendation.setVisibility(View.INVISIBLE);
+                buttonClear.setVisibility(View.INVISIBLE);
+                adapter.notifyDataSetChanged();
+                isOpen = false;
+            }
+        });
 
         isOpen = false;
         FloatingActionButton buttonMenu = view.findViewById(R.id.shoppinglistmenu_fap);
@@ -156,9 +169,13 @@ public class ShoppinglistFragment extends Fragment {
             public void onClick(View v) {
                 if (isOpen) {
                     buttonAddShoppingItem.setVisibility(View.INVISIBLE);
+                    buttonRecommendation.setVisibility(View.INVISIBLE);
+                    buttonClear.setVisibility(View.INVISIBLE);
                     isOpen = false;
                 } else {
                     buttonAddShoppingItem.setVisibility(View.VISIBLE);
+                    buttonRecommendation.setVisibility(View.VISIBLE);
+                    buttonClear.setVisibility(View.VISIBLE);
                     isOpen = true;
                 }
             }

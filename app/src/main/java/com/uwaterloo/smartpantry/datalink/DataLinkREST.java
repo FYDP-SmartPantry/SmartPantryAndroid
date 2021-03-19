@@ -129,10 +129,10 @@ public class DataLinkREST {
         DataLink.getInstance().addToRequestQueue(jsonObjectRequest);
     }
 
-    public static List<GroceryItem> GetMockShoppingList() {
-        List<GroceryItem> shoppingList = new ArrayList<>();
-        shoppingList.add(new GroceryItem("blueberries", 222));
-        shoppingList.add(new GroceryItem("rhubarb", 10));
+    public static List<String> GetMockShoppingList() {
+        List<String> shoppingList = new ArrayList<>();
+        shoppingList.add(new String("blueberries"));
+        shoppingList.add(new String("rhubarb"));
         return shoppingList;
     }
 
