@@ -4,6 +4,15 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.util.Log;
+import android.util.Size;
+import android.view.LayoutInflater;
+import android.view.ScaleGestureDetector;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraSelector;
@@ -15,23 +24,21 @@ import androidx.camera.view.PreviewView;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.LifecycleOwner;
 
-import android.os.Environment;
-import android.view.LayoutInflater;
-import android.view.ScaleGestureDetector;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.Toast;
-
+import com.android.volley.error.VolleyError;
+import com.couchbase.lite.internal.utils.StringUtils;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.uwaterloo.smartpantry.R;
-import com.uwaterloo.smartpantry.inventory.Food;
-import com.uwaterloo.smartpantry.ui.foodcamera.FoodcameraFragment;
+import com.uwaterloo.smartpantry.datalink.DataLinkREST;
+import com.uwaterloo.smartpantry.datalink.VolleyResponseListener;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -39,7 +46,7 @@ import java.util.concurrent.ExecutionException;
  * Use the {@link CameraFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class CameraFragment extends Fragment {
+public class CameraFragment extends Fragment implements VolleyResponseListener {
     private static final int REQUEST_CODE_PERMISSIONS = 10;
     private static final String FILENAME_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSS";
     private ImageCapture imageCapture = null;
@@ -97,12 +104,16 @@ public class CameraFragment extends Fragment {
         ListenableFuture<ProcessCameraProvider> cameraProviderFuture = ProcessCameraProvider.getInstance(getContext());
         cameraProviderFuture.addListener(() -> {
             try {
+                // Scale the target resolution for smaller image size when doing the upload
                 ProcessCameraProvider cameraProvider = cameraProviderFuture.get();
-                Preview preview = new Preview.Builder().build();
+                Preview preview = new Preview.Builder()
+                        .setTargetResolution(new Size(768, 1024))
+                        .build();
 
                 imageCapture =
                         new ImageCapture.Builder()
                                 .setTargetRotation(getView().getDisplay().getRotation())
+                                .setTargetResolution(new Size(768, 1024))
                                 .build();
 
                 CameraSelector cameraSelector = new CameraSelector.Builder()
@@ -144,12 +155,14 @@ public class CameraFragment extends Fragment {
         ImageCapture.OutputFileOptions outputFileOptions =
                 new ImageCapture.OutputFileOptions.Builder(file).build();
 
+
         imageCapture.takePicture(outputFileOptions, ContextCompat.getMainExecutor(getContext()), new ImageCapture.OnImageSavedCallback() {
             @Override
             public void onImageSaved(ImageCapture.OutputFileResults outputFileResults) {
                 Uri savedUri = Uri.fromFile(file);
                 String msg = "Photo saved: " + savedUri;
                 Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
+                DataLinkREST.GetPrediction(file.getAbsolutePath(), CameraFragment.this);
             }
             // TODO: Error Handling
             @Override
@@ -196,5 +209,46 @@ public class CameraFragment extends Fragment {
         });
 
         return v;
+    }
+
+    @Override
+    public void onSuccess(JSONArray response, String type) {
+        System.out.println(response);
+    }
+
+    @Override
+    public void onSuccess(JSONObject response, String type) {
+        System.out.println(response);
+        switch (type) {
+            case "Predict":
+                try {
+                    JSONObject result = response.getJSONObject("result");
+                    JSONArray prediction = result.getJSONArray("prediction");
+                    ArrayList<String> ingredients = new ArrayList<String>();
+                    for (int i = 0; i < prediction.length(); i++) {
+                        if (!StringUtils.isEmpty(prediction.getString(i)) && !prediction.getString(i).equals("can not recognize item")) {
+                            ingredients.add(prediction.getString(i));
+                        }
+                    }
+                    ingredients.add("No Matches");
+                    Bundle bundle = new Bundle();
+
+                    bundle.putStringArrayList("Ingredients", ingredients);
+                    getParentFragmentManager().setFragmentResult("requestKey", bundle);
+                    getActivity().getSupportFragmentManager().popBackStackImmediate();
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                break;
+
+            default:
+                break;
+        }
+    }
+
+    @Override
+    public void onFailure(VolleyError error) {
+        Log.v("Error", error.getMessage());
     }
 }

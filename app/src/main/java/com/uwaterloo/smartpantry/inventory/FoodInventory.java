@@ -3,6 +3,7 @@ package com.uwaterloo.smartpantry.inventory;
 import com.couchbase.lite.CouchbaseLiteException;
 import com.couchbase.lite.DataSource;
 import com.couchbase.lite.Database;
+import com.couchbase.lite.Document;
 import com.couchbase.lite.Meta;
 import com.couchbase.lite.MutableDocument;
 import com.couchbase.lite.Ordering;
@@ -80,7 +81,7 @@ public class FoodInventory{
                     food.setName(result.getString(Food.nameString));
                     food.setCategory(Category.StringToCategory(result.getString(Food.categoryString)));
                     food.setStockType(result.getString(Food.stockTypeString));
-                    food.setNumber(result.getInt(Food.numberString));
+                    food.setNumber(result.getDouble(Food.numberString));
                     food.setExpirationDate(result.getString(Food.expirationDateString));
                     inventoryMap.put(food.getName(), food);
                 }
@@ -96,11 +97,13 @@ public class FoodInventory{
     public boolean saveInventory() {
         try {
             Database database = DatabaseManager.getDatabase(DatabaseManager.inventoryDbStr);
+            wipeDatabase();
+
             for (Map.Entry<String, Food> food : inventoryMap.entrySet()) {
                 MutableDocument mutableDocument = new MutableDocument();
                 mutableDocument.setString(Food.nameString, food.getValue().getName());
                 mutableDocument.setString(Food.stockTypeString, food.getValue().getStockType());
-                mutableDocument.setInt(Food.numberString, food.getValue().getNumber());
+                mutableDocument.setNumber(Food.numberString, food.getValue().getNumber());
                 mutableDocument.setString(Food.categoryString, Category.CategoryToString(food.getValue().getCategory()));
                 mutableDocument.setString(Food.expirationDateString, food.getValue().getExpirationDate());
                 try {
@@ -114,6 +117,22 @@ public class FoodInventory{
             e.printStackTrace();
         }
         return false;
+    }
+
+    public void wipeDatabase() {
+        try {
+            Database database = DatabaseManager.getDatabase(DatabaseManager.inventoryDbStr);
+            Query query = QueryBuilder.select(SelectResult.expression(Meta.id), SelectResult.all())
+                    .from(DataSource.database(database));
+            ResultSet rs = query.execute();
+            for (Result result : rs) {
+                String id = result.getString(0);
+                Document doc = database.getDocument(id);
+                database.delete(doc);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public boolean syncInventory() {

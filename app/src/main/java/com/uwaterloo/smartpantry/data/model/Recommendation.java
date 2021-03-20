@@ -60,7 +60,7 @@ public class Recommendation {
             try {
                 JSONObject jsonObject = jsonArray.getJSONObject(i);
                 JSONArray usedIngredients = jsonObject.getJSONArray("usedIngredients");
-                double ingredientCount = 0.0;
+                Double ingredientCount = 0.0;
                 for (int j = 0; i < usedIngredients.length(); j++) {
                     String ingredient = usedIngredients.getJSONObject(j).getString("name");
                     if (Pattern.compile(Pattern.quote(ingredient), Pattern.CASE_INSENSITIVE).matcher(food.getName()).find() ||

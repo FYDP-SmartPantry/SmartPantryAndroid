@@ -3,9 +3,7 @@ package com.uwaterloo.smartpantry.inventory;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonArrayRequest;
-import com.android.volley.toolbox.StringRequest;
+import com.android.volley.request.JsonArrayRequest;
 import com.couchbase.lite.CouchbaseLiteException;
 import com.couchbase.lite.DataSource;
 import com.couchbase.lite.Database;
@@ -102,7 +100,7 @@ public class ShoppingList implements Inventory {
                     item.setName(result.getString(GroceryItem.nameString));
                     item.setCategory(Category.StringToCategory(result.getString(GroceryItem.categoryString)));
                     item.setStockType(result.getString(GroceryItem.stockTypeString));
-                    item.setNumber(result.getInt(GroceryItem.numberString));
+                    item.setNumber(result.getDouble(GroceryItem.numberString));
                     shoppingListMap.put(item.getName(), item);
                 }
             } catch (CouchbaseLiteException e) {
@@ -122,7 +120,7 @@ public class ShoppingList implements Inventory {
                 MutableDocument mutableDocument = new MutableDocument();
                 mutableDocument.setString(GroceryItem.nameString, item.getValue().getName());
                 mutableDocument.setString(GroceryItem.stockTypeString, item.getValue().getStockType());
-                mutableDocument.setInt(GroceryItem.numberString, item.getValue().getNumber());
+                mutableDocument.setNumber(GroceryItem.numberString, item.getValue().getNumber());
                 mutableDocument.setString(GroceryItem.categoryString, Category.CategoryToString(item.getValue().getCategory()));
                 try {
                     database.save(mutableDocument);

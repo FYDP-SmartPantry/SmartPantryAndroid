@@ -1,10 +1,12 @@
 package com.uwaterloo.smartpantry.datalink;
 
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonArrayRequest;
-import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.error.VolleyError;
+import com.android.volley.request.JsonArrayRequest;
+import com.android.volley.request.JsonObjectRequest;
+import com.android.volley.request.SimpleMultiPartRequest;
 import com.uwaterloo.smartpantry.data.UserInfo;
 import com.uwaterloo.smartpantry.user.User;
 
@@ -12,13 +14,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public class DataLinkREST {
     private DataLinkREST() {};
-    private static String base_url = "http://3.18.111.90:5000/";
+    private static String base_url = "http://18.224.136.80:5000/";
     private static String food_url = "https://api.spoonacular.com/";
+    private static String predict_url = "http://18.224.136.80:5000/predict";
     // TODO: Secure this key later on
     private static String api_key = "5119238a378a45f3aedb5f4e984fc071";
 
@@ -67,6 +67,32 @@ public class DataLinkREST {
                     }
         });
         DataLink.getInstance().addToRequestQueue(jsonObjectRequest);
+    }
+
+    public static void GetPrediction(String imagePath, VolleyResponseListener volleyResponseListener) {
+        SimpleMultiPartRequest smr = new SimpleMultiPartRequest(Request.Method.POST, predict_url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            JSONObject jsonObject = new JSONObject(response);
+                            volleyResponseListener.onSuccess(jsonObject, "Predict");
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    System.out.println(error);
+                    volleyResponseListener.onFailure(error);
+                }
+        });
+        smr.addFile("file", imagePath);
+        smr.setRetryPolicy(new DefaultRetryPolicy(
+           8000, 2, 0
+        ));
+        DataLink.getInstance().addToRequestQueue(smr);
     }
 
     // generate recipe based on foodlist

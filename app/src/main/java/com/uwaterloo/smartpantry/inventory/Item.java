@@ -11,8 +11,8 @@ public interface Item {
     String getStockType();
     void setStockType(String stockType);
 
-    int getNumber();
-    void setNumber(int number);
+    Double getNumber();
+    void setNumber(Double number);
 
     Category.CategoryEnum getCategory();
     void setCategory(Category.CategoryEnum category);

@@ -18,7 +18,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-import com.android.volley.VolleyError;
+import com.android.volley.error.VolleyError;
 import com.uwaterloo.smartpantry.R;
 import com.uwaterloo.smartpantry.data.model.Recommendation;
 import com.uwaterloo.smartpantry.database.DatabaseManager;

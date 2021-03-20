@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="28dp"
+        tools:layout_editor_absoluteX="63dp"
+        tools:layout_editor_absoluteY="122dp">
+
+        <TextView
+            android:id="@+id/ingredient_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Ingredient" />
+
+        <EditText
+            android:id="@+id/input_ingredient_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/ingredient_title"
+            android:inputType="text" />
+
+        <TextView
+            android:id="@+id/stock_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/input_ingredient_name"
+            android:text="Stock" />
+
+        <EditText
+            android:id="@+id/input_stock_type"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/stock_title"
+            android:hint="lbs, kg, whole, Tbsp...etc"
+            android:spinnerMode="dropdown" />
+
+        <TextView
+            android:id="@+id/quantity_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/input_stock_type"
+            android:text="Quantity" />
+
+        <EditText
+            android:id="@+id/input_quantity"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/quantity_title"
+            android:ems="10"
+            android:inputType="numberDecimal" />
+
+        <TextView
+            android:id="@+id/category_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/input_quantity"
+            android:text="Category" />
+
+        <Spinner
+            android:id="@+id/input_category"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/category_title"
+            android:spinnerMode="dropdown"
+            android:text="Stock Type" />
+
+        <TextView
+            android:id="@+id/expiration_date_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/input_category"
+            android:text="Expiration Date" />
+
+        <EditText
+            android:id="@+id/input_expiration_date"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/expiration_date_title"
+            android:ems="10"
+            android:inputType="date" />
+        <!--            android:onClick="showDatePickDialog"-->
+
+
+    </RelativeLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
