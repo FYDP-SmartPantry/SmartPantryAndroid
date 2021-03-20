@@ -23,6 +23,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.uwaterloo.smartpantry.R;
 import com.uwaterloo.smartpantry.ui.login.LoginActivity;
+import com.uwaterloo.smartpantry.user.User;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -40,7 +41,7 @@ public class MyprofileFragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
-    TextView username, email, id;
+    TextView username, email, id, familyname, givenname;
     ImageView userProfileImg;
     private GoogleSignInClient googleSignInClient;
 
@@ -86,12 +87,15 @@ public class MyprofileFragment extends Fragment {
         username = v.findViewById(R.id.name);
         email = v.findViewById(R.id.email);
         userProfileImg = v.findViewById(R.id.profile);
-
+        id = v.findViewById(R.id.personid);
         if (acct != null) {
             username.setText(acct.getDisplayName());
             email.setText(acct.getEmail());
+            id.setText(acct.getId());
             Uri personProfilUri =acct.getPhotoUrl();
             Glide.with(this).load(String.valueOf(personProfilUri)).into(userProfileImg);
+            User user = User.getInstance();
+            user.setUserInfo(acct.getId(), acct.getEmail(), acct.getDisplayName());
         }
         btnSignOut = v.findViewById(R.id.sign_out_btn);
         btnSignOut.setOnClickListener(new View.OnClickListener(){

@@ -1,7 +1,7 @@
 package com.uwaterloo.smartpantry;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.uwaterloo.smartpantry.ui.foodcamera.FoodcameraFragment;
+import com.uwaterloo.smartpantry.ui.addshoppingitem.AddItemToShoppinglistFragment;
 import com.uwaterloo.smartpantry.ui.foodinventory.FoodinventoryFragment;
 import com.uwaterloo.smartpantry.ui.foodstatus.FoodstatusFragment;
 import com.uwaterloo.smartpantry.ui.myprofile.MyprofileFragment;
@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
                             openFragment(FoodstatusFragment.newInstance("", ""));
                             return true;
                         case R.id.navigation_shoppinglist:
-                            openFragment(RecommendationFragment.newInstance());
+                            openFragment(ShoppinglistFragment.newInstance("", ""));
                             return true;
                         case R.id.navigation_myprofile:
                             openFragment(MyprofileFragment.newInstance("", ""));

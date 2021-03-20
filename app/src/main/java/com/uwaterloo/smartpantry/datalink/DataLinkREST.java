@@ -8,11 +8,15 @@ import com.android.volley.request.JsonArrayRequest;
 import com.android.volley.request.JsonObjectRequest;
 import com.android.volley.request.SimpleMultiPartRequest;
 import com.uwaterloo.smartpantry.data.UserInfo;
+import com.uwaterloo.smartpantry.inventory.GroceryItem;
 import com.uwaterloo.smartpantry.user.User;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class DataLinkREST {
     private DataLinkREST() {};
@@ -149,6 +153,13 @@ public class DataLinkREST {
             }
         });
         DataLink.getInstance().addToRequestQueue(jsonObjectRequest);
+    }
+
+    public static List<GroceryItem> GetMockShoppingList() {
+        List<GroceryItem> shoppingList = new ArrayList<>();
+        shoppingList.add(new GroceryItem("blueberries",3.0, "lbs"));
+        shoppingList.add(new GroceryItem("rhubarb", 2.0, "lbs"));
+        return shoppingList;
     }
 
     public static void SetupMealPlan(String username, VolleyResponseListener volleyResponseListener) {

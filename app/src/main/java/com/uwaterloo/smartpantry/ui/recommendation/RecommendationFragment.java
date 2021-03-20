@@ -1,5 +1,7 @@
 package com.uwaterloo.smartpantry.ui.recommendation;
 
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.os.Bundle;
@@ -16,16 +18,21 @@ import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 
 import com.android.volley.error.VolleyError;
 import com.uwaterloo.smartpantry.R;
+import com.uwaterloo.smartpantry.adapter.RecommendationItemAdapter;
 import com.uwaterloo.smartpantry.data.model.Recommendation;
 import com.uwaterloo.smartpantry.database.DatabaseManager;
 import com.uwaterloo.smartpantry.datalink.DataLink;
 import com.uwaterloo.smartpantry.datalink.DataLinkREST;
 import com.uwaterloo.smartpantry.datalink.VolleyResponseListener;
 import com.uwaterloo.smartpantry.inventory.FoodInventory;
+import com.uwaterloo.smartpantry.inventory.GroceryItem;
+import com.uwaterloo.smartpantry.inventory.ShoppingList;
+import com.uwaterloo.smartpantry.ui.addshoppingitem.AddItemToShoppinglistFragment;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -44,6 +51,8 @@ public class RecommendationFragment extends Fragment implements VolleyResponseLi
 
     private FoodInventory foodInventory = new FoodInventory();
     private DatabaseManager dbManager = getSharedInstance();
+
+    String[] arr = {"apple", "orrange", "juice", "fihs"};
 
     public static RecommendationFragment newInstance() {
         return new RecommendationFragment();
@@ -64,9 +73,11 @@ public class RecommendationFragment extends Fragment implements VolleyResponseLi
         mViewModel = new ViewModelProvider(getActivity()).get(RecommendationViewModel.class);
         Recommendation rec = mViewModel.getRecommendation();
 
-        arrayAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1, new ArrayList<String>());
+        //arrayAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_multiple_choice, arr);
+        RecommendationItemAdapter adapter = new RecommendationItemAdapter(DataLinkREST.GetMockShoppingList());
+
         ListView listView = view.findViewById(R.id.recommended_list);
-        listView.setAdapter(arrayAdapter);
+        listView.setAdapter(adapter);
         listView.setOnItemClickListener(this::onItemClick);
 
         if (rec != null) {
@@ -80,6 +91,32 @@ public class RecommendationFragment extends Fragment implements VolleyResponseLi
             recommendation = new Recommendation();
             initLoad();
         }
+
+        Button recmdBackButton = view.findViewById(R.id.BackToShoppingList);
+        recmdBackButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                fragmentManager.popBackStackImmediate();
+            }
+        });
+
+        Button addToList = view.findViewById(R.id.addRecommendationsToShoppingList);
+        addToList.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ShoppingList shpObj = ShoppingList.getInstance();
+                System.out.println("add something");
+                for (GroceryItem item : shpObj.recommendList) {
+                    shpObj.shoppingList.add(item);
+                    System.out.println("add to shopping list" + item.getName());
+                }
+                shpObj.recommendList.clear();
+                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                fragmentManager.popBackStackImmediate();
+            }
+        });
+
     }
 
     public void initLoad() {
