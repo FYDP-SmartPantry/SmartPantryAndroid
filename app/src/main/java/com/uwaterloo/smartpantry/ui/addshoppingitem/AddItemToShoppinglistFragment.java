@@ -106,6 +106,6 @@ public class AddItemToShoppinglistFragment extends Fragment {
         }
 
         ShoppingList shoppingList = ShoppingList.getInstance();
-        shoppingList.addItemToInventory(new GroceryItem(name, Integer.parseInt(quantity), stock));
+        shoppingList.addItemToInventory(new GroceryItem(name, Double.parseDouble(quantity), stock));
     }
 }

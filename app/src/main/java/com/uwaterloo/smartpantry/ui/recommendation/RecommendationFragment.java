@@ -21,7 +21,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 
-import com.android.volley.VolleyError;
+import com.android.volley.error.VolleyError;
 import com.uwaterloo.smartpantry.R;
 import com.uwaterloo.smartpantry.adapter.RecommendationItemAdapter;
 import com.uwaterloo.smartpantry.data.model.Recommendation;

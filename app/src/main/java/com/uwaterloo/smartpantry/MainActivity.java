@@ -2,7 +2,6 @@ package com.uwaterloo.smartpantry;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.uwaterloo.smartpantry.ui.addshoppingitem.AddItemToShoppinglistFragment;
-import com.uwaterloo.smartpantry.ui.foodcamera.FoodcameraFragment;
 import com.uwaterloo.smartpantry.ui.foodinventory.FoodinventoryFragment;
 import com.uwaterloo.smartpantry.ui.foodstatus.FoodstatusFragment;
 import com.uwaterloo.smartpantry.ui.myprofile.MyprofileFragment;
@@ -29,7 +28,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         bottomNavigation = findViewById(R.id.bottom_navigation);
         bottomNavigation.setOnNavigationItemSelectedListener(navigationItemSelectedListener);
-        openFragment(FoodcameraFragment.newInstance("", ""));
+        bottomNavigation.setSelectedItemId(R.id.navigation_foodinventory);
         /*registerButton.setOnClickListener(new View.OnClickListener() {
             // OnClick -> the login_register activity
             @Override
@@ -60,9 +59,6 @@ public class MainActivity extends AppCompatActivity {
             new BottomNavigationView.OnNavigationItemSelectedListener() {
                 @Override public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                     switch (item.getItemId()) {
-                        case R.id.navigation_foodcamera:
-                            openFragment(FoodcameraFragment.newInstance("", ""));
-                            return true;
                         case R.id.navigation_foodinventory:
                             openFragment(FoodinventoryFragment.newInstance("", ""));
                             return true;
@@ -80,4 +76,13 @@ public class MainActivity extends AppCompatActivity {
                 }
             };
 
+//    @Override
+//    public void onBackPressed() {
+//        super.onBackPressed();
+////        if (bottomNavigation.getSelectedItemId() == R.id.navigation_foodinventory) {
+////            finish();
+////        } else {
+////            bottomNavigation.setSelectedItemId(R.id.navigation_foodinventory);
+////        }
+//    }
 }

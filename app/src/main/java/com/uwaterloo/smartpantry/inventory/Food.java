@@ -10,7 +10,7 @@ public class Food implements FoodInterface {
 
     String name = null;
     String stockType = null;
-    int number = 0;
+    Double number = 0.0;
     Category.CategoryEnum category = null;
     String expiration_date = null;
 
@@ -49,10 +49,10 @@ public class Food implements FoodInterface {
     public void setStockType(String stockType) { this.stockType = stockType; }
 
     @Override
-    public int getNumber() { return this.number; }
+    public Double getNumber() { return this.number; }
 
     @Override
-    public void setNumber(int number) { this.number = number; }
+    public void setNumber(Double number) { this.number = number; }
 
     @Override
     public Category.CategoryEnum getCategory() { return this.category; }

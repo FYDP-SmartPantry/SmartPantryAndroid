@@ -1,11 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-
-    <item
-        android:id="@+id/navigation_foodcamera"
-        android:icon="@drawable/ic_baseline_photo_camera_20"
-        android:title="Cam" />
-
     <item
         android:id="@+id/navigation_foodinventory"
         android:icon="@drawable/ic_baseline_format_list_bulleted_20"

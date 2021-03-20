@@ -83,7 +83,7 @@ public class WastedFoodInventory {
                     food.setName(result.getString(WastedFood.nameString));
                     food.setCategory(Category.StringToCategory(result.getString(WastedFood.categoryString)));
                     food.setStockType(result.getString(WastedFood.stockTypeString));
-                    food.setNumber(result.getInt(WastedFood.numberString));
+                    food.setNumber(result.getDouble(WastedFood.numberString));
                     food.addReason(result.getString(WastedFood.reasonString));
                     inventoryMap.put(food.getName(), food);
                 }
@@ -104,7 +104,7 @@ public class WastedFoodInventory {
                 MutableDocument mutableDocument = new MutableDocument();
                 mutableDocument.setString(Food.nameString, food.getValue().getName());
                 mutableDocument.setString(Food.stockTypeString, food.getValue().getStockType());
-                mutableDocument.setInt(Food.numberString, food.getValue().getNumber());
+                mutableDocument.setNumber(Food.numberString, food.getValue().getNumber());
                 mutableDocument.setString(Food.categoryString, Category.CategoryToString(food.getValue().getCategory()));
                 mutableDocument.setString(WastedFood.reasonString, food.getValue().getReason());
                 // FIXME reason should be a list instead of just a string.

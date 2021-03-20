@@ -5,9 +5,7 @@ import androidx.annotation.NonNull;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonArrayRequest;
-import com.android.volley.toolbox.StringRequest;
+import com.android.volley.request.JsonArrayRequest;
 import com.couchbase.lite.CouchbaseLiteException;
 import com.couchbase.lite.DataSource;
 import com.couchbase.lite.Database;
@@ -77,11 +75,11 @@ public class ShoppingList {
     }
 
     public void loadTestData() {
-        shoppingList.add(new GroceryItem("banana", 2, "lbs"));
-        shoppingList.add(new GroceryItem("apple", 3, "lbs"));
-        shoppingList.add(new GroceryItem("orange", 4, "lbs"));
-        shoppingList.add(new GroceryItem("strawberry", 5, "lbs"));
-        shoppingList.add(new GroceryItem("mango", 20, "lbs"));
+        shoppingList.add(new GroceryItem("banana", 2.0, "lbs"));
+        shoppingList.add(new GroceryItem("apple", 3.0, "lbs"));
+        shoppingList.add(new GroceryItem("orange", 4.0, "lbs"));
+        shoppingList.add(new GroceryItem("strawberry", 5.0, "lbs"));
+        shoppingList.add(new GroceryItem("mango", 20.0, "lbs"));
     }
 
     /*
@@ -98,7 +96,7 @@ public class ShoppingList {
             try {
                 ResultSet rs = query.execute();
                 for (Result result : rs) {
-                    GroceryItem item = new GroceryItem(result.getString(GroceryItem.nameString), result.getInt(GroceryItem.numberString), result.getString(GroceryItem.stockString));
+                    GroceryItem item = new GroceryItem(result.getString(GroceryItem.nameString), result.getDouble(GroceryItem.numberString), result.getString(GroceryItem.stockString));
                     shoppingList.add(item);
                 }
             } catch (CouchbaseLiteException e) {
@@ -117,7 +115,7 @@ public class ShoppingList {
                 MutableDocument mutableDocument = new MutableDocument();
                 mutableDocument.setString(GroceryItem.nameString, item.getName());
                 mutableDocument.setString(GroceryItem.stockString, item.getStockType());
-                mutableDocument.setInt(GroceryItem.numberString, item.getNumber());
+                mutableDocument.setDouble(GroceryItem.numberString, item.getNumber());
                 try {
                      database.save(mutableDocument);
                 } catch (CouchbaseLiteException e) {

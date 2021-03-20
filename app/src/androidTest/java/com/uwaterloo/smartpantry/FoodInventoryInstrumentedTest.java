@@ -45,13 +45,13 @@ public class FoodInventoryInstrumentedTest {
 
         Food item = foodInventory.getFood("apple");
         assertEquals(Category.CategoryEnum.FRUIT, item.getCategory());
-        assertEquals(5, item.getNumber());
+        assertEquals(5.0, item.getNumber(), 0);
         assertEquals("lbs", item.getStockType());
         assertEquals("2021/1/3", item.getExpirationDate());
 
         item = foodInventory.getFood("orange");
         assertEquals(Category.CategoryEnum.FRUIT, item.getCategory());
-        assertEquals(6, item.getNumber());
+        assertEquals(6.0, item.getNumber(), 0);
         assertEquals("cnt", item.getStockType());
         assertEquals("2021/1/3", item.getExpirationDate());
 
@@ -62,7 +62,7 @@ public class FoodInventoryInstrumentedTest {
         toShop1.setName("apple");
         toShop1.setCategory(Category.CategoryEnum.FRUIT);
         toShop1.setStockType("lbs");
-        toShop1.setNumber(5);
+        toShop1.setNumber(5.0);
         toShop1.setExpirationDate("2021/1/3");
         try {
             foodInventory.addItemToInventory(toShop1);
@@ -76,7 +76,7 @@ public class FoodInventoryInstrumentedTest {
         toShop2.setName("orange");
         toShop2.setCategory(Category.CategoryEnum.FRUIT);
         toShop2.setStockType("cnt");
-        toShop2.setNumber(6);
+        toShop2.setNumber(6.0);
         toShop2.setExpirationDate("2021/1/3");
         try {
             foodInventory.addItemToInventory(toShop2);

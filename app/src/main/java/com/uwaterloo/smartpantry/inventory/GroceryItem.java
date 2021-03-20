@@ -6,12 +6,13 @@ public class GroceryItem {
     final static String numberString = "count";
     final static String stockString = "stockType";
     String name = null;
-    int number = 0;
     String stockType = null;
+    Double number = 0.0;
+    Category.CategoryEnum category = null;
 
 
     public GroceryItem() {}
-    public GroceryItem(String name, int quantity, String stockType) {
+    public GroceryItem(String name, Double quantity, String stockType) {
         this.name = name;
         this.number = quantity;
         this.stockType = stockType;
@@ -21,11 +22,12 @@ public class GroceryItem {
 
     public void setName(String name) { this.name = name; }
 
-    public int getNumber() { return this.number; }
-
-    public void setNumber(int number) { this.number = number; }
-
     public String getStockType() { return this.stockType; }
 
     public void setStockType(String stockType) { this.stockType = stockType; }
+
+    public Double getNumber() { return this.number; }
+
+    public void setNumber(Double number) { this.number = number; }
+
 }
