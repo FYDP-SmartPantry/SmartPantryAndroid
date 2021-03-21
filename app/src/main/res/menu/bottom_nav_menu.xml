@@ -11,6 +11,11 @@
         android:title="Stat" />
 
     <item
+        android:id="@+id/navigation_recommendation"
+        android:icon="@drawable/ic_baseline_article_24"
+        android:title="Rec" />
+
+    <item
         android:id="@+id/navigation_shoppinglist"
         android:icon="@drawable/ic_baseline_shopping_cart_20"
         android:title="List" />

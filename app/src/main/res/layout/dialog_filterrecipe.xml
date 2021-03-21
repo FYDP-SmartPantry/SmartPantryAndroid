@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="24dp">
+
+        <TextView
+            android:id="@+id/ingredient_filter_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="18dp"
+            android:text="Ingredient" />
+
+        <ListView
+            android:id="@+id/ingredient_filter"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/ingredient_filter_title"
+            android:choiceMode="multipleChoice"
+            ></ListView>
+        <TextView
+            android:id="@+id/recipe_meal_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/ingredient_filter"
+            android:textSize="18dp"
+            android:text="Meal Type" />
+
+        <ListView
+            android:id="@+id/recipe_meal_filter"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/recipe_meal_title"
+            android:choiceMode="multipleChoice"
+            ></ListView>
+
+        <TextView
+            android:id="@+id/recipe_cuisine_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/recipe_meal_filter"
+            android:textSize="18dp"
+            android:text="Cuisine" />
+
+        <ListView
+            android:id="@+id/recipe_cuisine_filter"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/recipe_cuisine_title"
+            android:choiceMode="multipleChoice"
+            ></ListView>
+
+        <TextView
+            android:id="@+id/recipe_diet_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/recipe_cuisine_filter"
+            android:textSize="18dp"
+            android:text="Diet" />
+
+        <ListView
+            android:id="@+id/recipe_diet_filter"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/recipe_diet_title"
+            android:choiceMode="multipleChoice"
+            ></ListView>
+
+    </RelativeLayout>
+
+</LinearLayout>

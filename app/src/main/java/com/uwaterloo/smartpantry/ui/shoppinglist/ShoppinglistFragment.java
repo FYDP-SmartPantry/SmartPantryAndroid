@@ -135,18 +135,18 @@ public class ShoppinglistFragment extends Fragment {
 //            }
 //        });
 
-        FloatingActionButton buttonRecommendation = view.findViewById(R.id.shoppinglistrecommd_fap);
-        buttonRecommendation.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                RecommendationFragment fragment = new RecommendationFragment();
-                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                fragmentTransaction.replace(((ViewGroup)getView().getParent()).getId(), fragment);
-                fragmentTransaction.addToBackStack(null);
-                fragmentTransaction.commit();
-            }
-        });
+//        FloatingActionButton buttonRecommendation = view.findViewById(R.id.shoppinglistrecommd_fap);
+//        buttonRecommendation.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                RecommendationFragment fragment = new RecommendationFragment();
+//                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+//                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+//                fragmentTransaction.replace(((ViewGroup)getView().getParent()).getId(), fragment);
+//                fragmentTransaction.addToBackStack(null);
+//                fragmentTransaction.commit();
+//            }
+//        });
 
         FloatingActionButton buttonClear = view.findViewById(R.id.shoppinglistclear_fap);
         buttonClear.setOnClickListener(new View.OnClickListener() {
@@ -155,7 +155,7 @@ public class ShoppinglistFragment extends Fragment {
                 ShoppingList shoppingListobj = ShoppingList.getInstance();
                 shoppingListobj.clearInventory();
                 buttonAddShoppingItem.setVisibility(View.INVISIBLE);
-                buttonRecommendation.setVisibility(View.INVISIBLE);
+//                buttonRecommendation.setVisibility(View.INVISIBLE);
                 buttonClear.setVisibility(View.INVISIBLE);
                 adapter.notifyDataSetChanged();
                 isOpen = false;
@@ -169,12 +169,12 @@ public class ShoppinglistFragment extends Fragment {
             public void onClick(View v) {
                 if (isOpen) {
                     buttonAddShoppingItem.setVisibility(View.INVISIBLE);
-                    buttonRecommendation.setVisibility(View.INVISIBLE);
+//                    buttonRecommendation.setVisibility(View.INVISIBLE);
                     buttonClear.setVisibility(View.INVISIBLE);
                     isOpen = false;
                 } else {
                     buttonAddShoppingItem.setVisibility(View.VISIBLE);
-                    buttonRecommendation.setVisibility(View.VISIBLE);
+//                    buttonRecommendation.setVisibility(View.VISIBLE);
                     buttonClear.setVisibility(View.VISIBLE);
                     isOpen = true;
                 }
