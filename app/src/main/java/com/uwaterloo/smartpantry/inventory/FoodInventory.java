@@ -14,6 +14,7 @@ import com.couchbase.lite.ResultSet;
 import com.couchbase.lite.SelectResult;
 import com.uwaterloo.smartpantry.database.DatabaseManager;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -56,6 +57,14 @@ public class FoodInventory{
     public void clearInventory() { inventoryMap.clear(); }
 
     public Food getFood(String item_name) { return inventoryMap.get(item_name); }
+
+    public ArrayList ListOfFoods(){
+        ArrayList<String> FoodNames = new ArrayList();
+        for(Map.Entry<String, Food> entry : inventoryMap.entrySet()){
+            FoodNames.add(entry.getKey());
+        }
+        return FoodNames;
+    }
 
     public void updateItem(String item_name, Food item) {
         if (inventoryMap.containsKey(item_name)) {

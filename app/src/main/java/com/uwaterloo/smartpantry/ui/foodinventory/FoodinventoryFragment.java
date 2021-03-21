@@ -11,6 +11,8 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.PopupMenu;
 
 import androidx.annotation.NonNull;
@@ -31,6 +33,8 @@ import com.uwaterloo.smartpantry.inventory.Category;
 import com.uwaterloo.smartpantry.inventory.Food;
 import com.uwaterloo.smartpantry.inventory.FoodInventory;
 import com.uwaterloo.smartpantry.ui.camera.CameraFragment;
+import com.uwaterloo.smartpantry.ui.foodinventory.CustomListAdapter;
+import com.uwaterloo.smartpantry.ui.foodinventory.FoodItem;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -131,6 +135,23 @@ public class FoodinventoryFragment extends Fragment implements VolleyResponseLis
         dbManager.openOrCreateDatabaseForUser(getContext(), DatabaseManager.currentUser);
         foodInventory.loadInventory();
 //        initLoad();
+
+        FoodItem food1 = new FoodItem("Apple", "2", "2021.10.10");
+        FoodItem food2 = new FoodItem("Banana", "3", "2021.11.11");
+        FoodItem food3 = new FoodItem("Pear", "10", "2021.12.12");
+        // Setup the data source
+        ArrayList<FoodItem> foodInventoryArrayList = new ArrayList<FoodItem>();
+
+        foodInventoryArrayList.add(food1);
+        foodInventoryArrayList.add(food2);
+        foodInventoryArrayList.add(food3);
+
+        // instantiate the custom list adapter
+        CustomListAdapter adapter = new CustomListAdapter(getActivity(), android.R.layout.simple_list_item_1, foodInventoryArrayList);
+
+        // get the ListView and attach the adapter
+        ListView listView = view.findViewById(R.id.food_inventory_list);
+        listView.setAdapter(adapter);
 
         buttonAddInventoryItem.setOnClickListener(new View.OnClickListener() {
             @Override
