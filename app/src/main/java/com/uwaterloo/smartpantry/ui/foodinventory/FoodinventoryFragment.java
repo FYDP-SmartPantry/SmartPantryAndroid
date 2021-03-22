@@ -11,20 +11,25 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.PopupMenu;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentResultListener;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.volley.error.VolleyError;
 import com.couchbase.lite.internal.utils.StringUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.uwaterloo.smartpantry.R;
+import com.uwaterloo.smartpantry.adapter.InventoryItemAdapter;
+import com.uwaterloo.smartpantry.adapter.MealPlanItemAdapter;
 import com.uwaterloo.smartpantry.database.DatabaseManager;
 import com.uwaterloo.smartpantry.datalink.DataLink;
 import com.uwaterloo.smartpantry.datalink.DataLinkREST;
@@ -32,9 +37,9 @@ import com.uwaterloo.smartpantry.datalink.VolleyResponseListener;
 import com.uwaterloo.smartpantry.inventory.Category;
 import com.uwaterloo.smartpantry.inventory.Food;
 import com.uwaterloo.smartpantry.inventory.FoodInventory;
+import com.uwaterloo.smartpantry.inventory.MealPlanItem;
 import com.uwaterloo.smartpantry.ui.camera.CameraFragment;
-import com.uwaterloo.smartpantry.ui.foodinventory.CustomListAdapter;
-import com.uwaterloo.smartpantry.ui.foodinventory.FoodItem;
+import com.uwaterloo.smartpantry.ui.recommendation.RecommendationMealPlanFragment;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -44,13 +49,16 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link com.uwaterloo.smartpantry.ui.foodinventory.FoodinventoryFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class FoodinventoryFragment extends Fragment implements VolleyResponseListener, SelectIngredientDialog.DialogListener, AddInventoryDialog.InventoryDialogListener {
+public class FoodinventoryFragment extends Fragment implements VolleyResponseListener,
+        SelectIngredientDialog.DialogListener, AddInventoryDialog.InventoryDialogListener,
+        InventoryItemAdapter.OnItemClickListener{
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -62,6 +70,9 @@ public class FoodinventoryFragment extends Fragment implements VolleyResponseLis
 
     private DatabaseManager dbManager = DatabaseManager.getSharedInstance();
     private FoodInventory foodInventory = new FoodInventory();
+
+    private List<Food> foodsList = new ArrayList<Food>();
+    private InventoryItemAdapter adapter = new InventoryItemAdapter();
 
     public FoodinventoryFragment() {
         // Required empty public constructor
@@ -134,24 +145,35 @@ public class FoodinventoryFragment extends Fragment implements VolleyResponseLis
         dbManager.initCouchbaseLite(getContext());
         dbManager.openOrCreateDatabaseForUser(getContext(), DatabaseManager.currentUser);
         foodInventory.loadInventory();
-//        initLoad();
+        foodsList = foodInventory.exportInventory();
 
-        FoodItem food1 = new FoodItem("Apple", "2", "2021.10.10");
-        FoodItem food2 = new FoodItem("Banana", "3", "2021.11.11");
-        FoodItem food3 = new FoodItem("Pear", "10", "2021.12.12");
-        // Setup the data source
-        ArrayList<FoodItem> foodInventoryArrayList = new ArrayList<FoodItem>();
+        RecyclerView recyclerView = view.findViewById(R.id.inventory_recycler_view);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        recyclerView.setHasFixedSize(true);
 
-        foodInventoryArrayList.add(food1);
-        foodInventoryArrayList.add(food2);
-        foodInventoryArrayList.add(food3);
+        adapter.setItems(foodsList);
+        adapter.setOnItemClickListener(this::onItemClick);
+        recyclerView.setAdapter(adapter);
 
-        // instantiate the custom list adapter
-        CustomListAdapter adapter = new CustomListAdapter(getActivity(), android.R.layout.simple_list_item_1, foodInventoryArrayList);
+        new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                return false;
+            }
 
-        // get the ListView and attach the adapter
-        ListView listView = view.findViewById(R.id.food_inventory_list);
-        listView.setAdapter(adapter);
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                Food food = foodsList.remove(viewHolder.getAdapterPosition());
+
+                foodInventory.removeItemFromInventory(food);
+                foodInventory.saveInventory();
+
+                adapter.setItems(foodsList);
+                adapter.notifyDataSetChanged();
+                Toast.makeText(getContext(), "Item removed from inventory", Toast.LENGTH_SHORT).show();
+            }
+        }).attachToRecyclerView(recyclerView);
+
 
         buttonAddInventoryItem.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -263,18 +285,33 @@ public class FoodinventoryFragment extends Fragment implements VolleyResponseLis
     }
 
     @Override
-    public void onAddDialogClick(String ingredient, String stock, Double quantity, Category.CategoryEnum category, String expirationDate) {
-        Food food = new Food();
-        food.setName(ingredient);
-        food.setStockType(stock);
-        food.setCategory(category);
-        food.setNumber(quantity);
-        food.setExpirationDate(expirationDate);
+    public void onAddDialogClick(Food food) {
         try {
             foodInventory.addItemToInventory(food);
             foodInventory.saveInventory();
+            foodsList = foodInventory.exportInventory();
+            adapter.setItems(foodsList);
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void onEditDialogClick(Food food) {
+        try {
+            foodInventory.updateItem(food.getName(), food);
+            foodInventory.saveInventory();
+            foodsList = foodInventory.exportInventory();
+            adapter.setItems(foodsList);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onItemClick(Food food) {
+        EditInventoryDialog editInventoryDialog = new EditInventoryDialog(food);
+        editInventoryDialog.setTargetFragment(this, 1);
+        editInventoryDialog.show(getFragmentManager(), "EditIngredient");
     }
 }

@@ -24,24 +24,20 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
 
-public class AddInventoryDialog extends DialogFragment {
+public class EditInventoryDialog extends DialogFragment {
     private EditText ingredientName;
     private EditText stockType;
     private EditText quantity;
     private Spinner category;
     private EditText expirationDate;
 
-    private String ingredient;
-    private InventoryDialogListener listener;
+    private Food food;
+    private AddInventoryDialog.InventoryDialogListener listener;
 
-    public AddInventoryDialog(String ingredient) {
-        this.ingredient = ingredient;
+    public EditInventoryDialog(Food food) {
+        this.food = food;
     }
 
-    public interface InventoryDialogListener {
-        public void onAddDialogClick(Food food);
-        public void onEditDialogClick(Food food);
-    }
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -57,7 +53,7 @@ public class AddInventoryDialog extends DialogFragment {
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle("Add an ingredient");
+        builder.setTitle("Inventory Edit");
 
         View view = getActivity().getLayoutInflater().inflate(R.layout.dialog_additem, null);
 
@@ -67,15 +63,17 @@ public class AddInventoryDialog extends DialogFragment {
         category = view.findViewById(R.id.input_category);
         expirationDate = view.findViewById(R.id.input_expiration_date);
 
-        if (!StringUtils.isEmpty(ingredient) && !ingredient.equals("No matches")) {
-            ingredientName.setText(ingredient);
-        }
+        ingredientName.setText(food.getName());
+        stockType.setText(food.getStockType());
+        quantity.setText(Double.toString(food.getNumber()));
+        category.setAdapter(new ArrayAdapter<Category.CategoryEnum>(getContext(), android.R.layout.simple_spinner_item ,Category.CategoryEnum.values()));
+        category.setSelection(food.getCategory().ordinal());
+        expirationDate.setText(food.getExpirationDate());
 
-        builder.setPositiveButton("Add", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton("Edit", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                System.out.println("Test");
-                addToInventory();
+                editInventory();
             }
         });
 
@@ -86,19 +84,14 @@ public class AddInventoryDialog extends DialogFragment {
             }
         });
 
-        category.setAdapter(new ArrayAdapter<Category.CategoryEnum>(getContext(), android.R.layout.simple_spinner_item ,Category.CategoryEnum.values()));
-        LocalDate localDate = LocalDate.now();
-        localDate = localDate.with(TemporalAdjusters.next(DayOfWeek.MONDAY));
-        expirationDate.setText(localDate.toString());
-
         builder.setView(view);
         return builder.create();
     }
 
-    public void addToInventory() {
+    public void editInventory() {
         if (StringUtils.isEmpty(ingredientName.getText().toString())
-        || StringUtils.isEmpty(quantity.getText().toString())
-        || StringUtils.isEmpty(expirationDate.getText().toString())) {
+                || StringUtils.isEmpty(quantity.getText().toString())
+                || StringUtils.isEmpty(expirationDate.getText().toString())) {
             Toast.makeText(getContext(), "Please fill all fields", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -115,7 +108,7 @@ public class AddInventoryDialog extends DialogFragment {
         result.setCategory(categoryEnum);
         result.setExpirationDate(expirationDate);
 
-         listener.onAddDialogClick(result);
+        listener.onEditDialogClick(result);
     }
 
 }
