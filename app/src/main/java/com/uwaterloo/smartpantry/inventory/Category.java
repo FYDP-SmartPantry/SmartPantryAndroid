@@ -5,11 +5,13 @@ public class Category {
     static final String meat = "MEAT";
     static final String fruit = "FRUIT";
     static final String vegetable = "VEGETABLE";
+    static final String other = "OTHER";
 
     public enum CategoryEnum {
         MEAT,
         FRUIT,
         VEGETABLE,
+        OTHER
     }
 
     public static String CategoryToString(CategoryEnum category) {
@@ -19,6 +21,8 @@ public class Category {
             return fruit;
         } else if (category == CategoryEnum.VEGETABLE) {
             return vegetable;
+        } else if (category == CategoryEnum.OTHER) {
+            return other;
         } else {
             // should never happen
             return null;
@@ -32,6 +36,8 @@ public class Category {
             return CategoryEnum.FRUIT;
         } else if (category.equalsIgnoreCase(vegetable)) {
             return CategoryEnum.VEGETABLE;
+        } else if(category.equalsIgnoreCase(other)) {
+            return CategoryEnum.OTHER;
         } else {
             // should never happen
             return null;

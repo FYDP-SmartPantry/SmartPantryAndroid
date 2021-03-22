@@ -5,6 +5,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -18,16 +19,21 @@ import com.android.volley.error.VolleyError;
 import com.uwaterloo.smartpantry.R;
 import com.uwaterloo.smartpantry.adapter.MealPlanItemAdapter;
 import com.uwaterloo.smartpantry.data.UserData;
+import com.uwaterloo.smartpantry.data.Utility;
 import com.uwaterloo.smartpantry.database.DatabaseManager;
 import com.uwaterloo.smartpantry.datalink.DataLink;
 import com.uwaterloo.smartpantry.datalink.DataLinkREST;
 import com.uwaterloo.smartpantry.datalink.VolleyResponseListener;
+import com.uwaterloo.smartpantry.inventory.GroceryItem;
 import com.uwaterloo.smartpantry.inventory.MealPlanItem;
+import com.uwaterloo.smartpantry.inventory.ShoppingList;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -79,6 +85,17 @@ public class RecommendationMealPlanFragment extends Fragment implements VolleyRe
                 adapter.notifyDataSetChanged();
             }
         }).attachToRecyclerView(recyclerView);
+
+        Button updateShoppingBtn = view.findViewById(R.id.update_shopping_btn);
+        updateShoppingBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                LocalDate localDate = LocalDate.now();
+                LocalDate start = localDate.with(TemporalAdjusters.previous(DayOfWeek.MONDAY));
+                LocalDate end = localDate.with(TemporalAdjusters.nextOrSame(DayOfWeek.MONDAY));
+                DataLinkREST.GenerateShoppingList(start.toString(), end.toString(), userData.getUserInfo(), RecommendationMealPlanFragment.this);
+            }
+        });
     }
 
     @Override
@@ -111,6 +128,14 @@ public class RecommendationMealPlanFragment extends Fragment implements VolleyRe
                 break;
             case "MealPlanItemDelete":
                 Toast.makeText(getActivity(), "Item removed from plan", Toast.LENGTH_SHORT).show();
+                break;
+            case "MealPlanShoppingList":
+                List<GroceryItem> groceryItems = Utility.parseShopping(response);
+                ShoppingList shoppingListobj = ShoppingList.getInstance();
+                shoppingListobj.clearInventory();
+                shoppingListobj.shoppingList = groceryItems;
+                shoppingListobj.saveInventory();
+                Toast.makeText(getContext(), "Shopping list updated", Toast.LENGTH_SHORT).show();
                 break;
             default:
                 break;

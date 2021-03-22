@@ -85,6 +85,7 @@ public class FoodInventory{
     public boolean loadInventory() {
         try {
             Database database = DatabaseManager.getDatabase(DatabaseManager.inventoryDbStr);
+            clearInventory();
             Query query = QueryBuilder.select(
                     SelectResult.expression(Meta.id),
                     SelectResult.property(Food.nameString),

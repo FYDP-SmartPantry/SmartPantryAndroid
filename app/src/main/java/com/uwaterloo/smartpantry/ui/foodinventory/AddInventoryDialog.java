@@ -67,7 +67,7 @@ public class AddInventoryDialog extends DialogFragment {
         category = view.findViewById(R.id.input_category);
         expirationDate = view.findViewById(R.id.input_expiration_date);
 
-        if (!StringUtils.isEmpty(ingredient) && !ingredient.equals("No matches")) {
+        if (!StringUtils.isEmpty(ingredient) && !ingredient.equals("No Matches")) {
             ingredientName.setText(ingredient);
         }
 

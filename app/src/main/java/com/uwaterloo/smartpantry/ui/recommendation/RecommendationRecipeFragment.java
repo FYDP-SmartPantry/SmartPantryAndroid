@@ -183,8 +183,6 @@ public class RecommendationRecipeFragment extends Fragment implements VolleyResp
                 arrayAdapter.notifyDataSetChanged();
                 break;
             case "RecipeInformation":
-                System.out.println("RecipeInformation");
-                System.out.println(recommendation.getSourceUrl(response));
                 startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(recommendation.getSourceUrl(response))));
                 break;
             case "MealPlanRegister":
@@ -200,6 +198,7 @@ public class RecommendationRecipeFragment extends Fragment implements VolleyResp
             case "MealPlanAdd":
                 System.out.println("response");
                 listView.clearChoices();
+                listView.requestLayout();
                 Toast.makeText(getContext(), "Meals registered to meal plan", Toast.LENGTH_SHORT).show();
                 break;
             default:
@@ -219,6 +218,7 @@ public class RecommendationRecipeFragment extends Fragment implements VolleyResp
         this.filteredCuisine = filteredCuisine;
         this.filteredDiet = filteredDiet;
         listView.clearChoices();
+        listView.requestLayout();
         DataLinkREST.SearchRecipes(filteredIngredients, filteredType, filteredCuisine, filteredDiet, this);
     }
 }

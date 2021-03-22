@@ -28,6 +28,7 @@ public class DatabaseManager {
     private static Database recipeTrackDb;
 
     public static String currentUser = null;
+    public static String userId = null;
 
     protected DatabaseManager() {}
 

@@ -9,6 +9,7 @@ import com.android.volley.request.JsonArrayRequest;
 import com.couchbase.lite.CouchbaseLiteException;
 import com.couchbase.lite.DataSource;
 import com.couchbase.lite.Database;
+import com.couchbase.lite.Document;
 import com.couchbase.lite.Meta;
 import com.couchbase.lite.MutableDocument;
 import com.couchbase.lite.Ordering;
@@ -88,6 +89,7 @@ public class ShoppingList {
     public boolean loadInventory() {
         try {
             Database database = DatabaseManager.getDatabase(DatabaseManager.shoppingListDbStr);
+            clearInventory();
             Query query = QueryBuilder.select(
                     SelectResult.expression(Meta.id),
                     SelectResult.property(GroceryItem.nameString),
@@ -111,6 +113,7 @@ public class ShoppingList {
     public boolean saveInventory() {
         try {
             Database database = DatabaseManager.getDatabase(DatabaseManager.shoppingListDbStr);
+            wipeDatabase();
             for (GroceryItem item : shoppingList) {
                 MutableDocument mutableDocument = new MutableDocument();
                 mutableDocument.setString(GroceryItem.nameString, item.getName());
@@ -129,6 +132,22 @@ public class ShoppingList {
         return false;
     }
 
+    public void wipeDatabase() {
+        try {
+            Database database = DatabaseManager.getDatabase(DatabaseManager.shoppingListDbStr);
+            Query query = QueryBuilder.select(SelectResult.expression(Meta.id), SelectResult.all())
+                    .from(DataSource.database(database));
+            ResultSet rs = query.execute();
+            for (Result result : rs) {
+                String id = result.getString(0);
+                Document doc = database.getDocument(id);
+                database.delete(doc);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 //    public boolean syncInventory() {
 //        return true;
 //    }
@@ -138,40 +157,6 @@ public class ShoppingList {
         dbmgr.deleteDatabaseForUser(DatabaseManager.shoppingListDbStr);
         return true;
     }
-
-//    public UserInfo getUserInfo() {
-//        try {
-//            Database database = DatabaseManager.getDatabase(DatabaseManager.userInfoDbStr);
-//            Query query = QueryBuilder.select(
-//                    SelectResult.expression(Meta.id),
-//                    SelectResult.property(UserInfo.usernameString),
-//                    SelectResult.property(UserInfo.hashString)).from(DataSource.database(database)).orderBy(Ordering.expression(Meta.id));
-//            try {
-//                ResultSet rs = query.execute();
-//                // Should only return 1 relevant result
-//                Result result = rs.next();
-//                UserInfo userInfo = new UserInfo();
-//                userInfo.setUsername(result.getString(UserInfo.usernameString));
-//                userInfo.setHash(result.getString(UserInfo.hashString));
-//
-//                return userInfo;
-//            } catch (CouchbaseLiteException e) {
-//                e.printStackTrace();
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        return new UserInfo();
-//    }
-
-//    public boolean hasMealPlanAccount() {
-//        UserInfo userInfo = getUserInfo();
-//        if (StringUtils.isEmpty(userInfo.getUsername()) || StringUtils.isEmpty(userInfo.getHash())) {
-//            return false;
-//        } else {
-//            return true;
-//        }
-//    }
 
     //TODO: I do not think we need to upload the shopping list to cloud anymore
 //    public boolean uploadInventory() {

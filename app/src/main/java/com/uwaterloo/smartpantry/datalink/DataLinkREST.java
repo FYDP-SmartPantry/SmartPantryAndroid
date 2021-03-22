@@ -14,7 +14,10 @@ import com.android.volley.request.SimpleMultiPartRequest;
 import com.android.volley.request.StringRequest;
 import com.couchbase.lite.internal.utils.StringUtils;
 import com.uwaterloo.smartpantry.data.UserInfo;
-import com.uwaterloo.smartpantry.inventory.GroceryItem;
+import com.uwaterloo.smartpantry.database.DatabaseManager;
+import com.uwaterloo.smartpantry.inventory.Category;
+import com.uwaterloo.smartpantry.inventory.Food;
+import com.uwaterloo.smartpantry.inventory.WastedFood;
 import com.uwaterloo.smartpantry.user.User;
 
 import org.json.JSONArray;
@@ -23,9 +26,7 @@ import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class DataLinkREST {
     private DataLinkREST() {};
@@ -110,7 +111,7 @@ public class DataLinkREST {
     }
 
     public static void SearchRecipes(ArrayList<String> filteredIngredients, ArrayList<String> filteredType, ArrayList<String> filteredCuisine, ArrayList<String> filteredDiet, VolleyResponseListener volleyResponseListener) {
-        String url = food_url + "recipes/complexSearch?apiKey=" + api_key;
+        String url = food_url + "recipes/complexSearch?apiKey=" + api_key + "&number=20&sort=max-used-ingredients";
 
         String ingr = String.join(",", filteredIngredients);
         String type = String.join(",", filteredType);
@@ -217,13 +218,6 @@ public class DataLinkREST {
         DataLink.getInstance().addToRequestQueue(jsonObjectRequest);
     }
 
-    public static List<GroceryItem> GetMockShoppingList() {
-        List<GroceryItem> shoppingList = new ArrayList<>();
-        shoppingList.add(new GroceryItem("blueberries",3.0, "lbs"));
-        shoppingList.add(new GroceryItem("rhubarb", 2.0, "lbs"));
-        return shoppingList;
-    }
-
     public static void SetupMealPlan(String username, VolleyResponseListener volleyResponseListener) {
         String url = food_url + "users/connect?apiKey=" + api_key;
         JSONObject bodyParameters = new JSONObject();
@@ -253,19 +247,18 @@ public class DataLinkREST {
         DataLink.getInstance().addToRequestQueue(jsonObjectRequest);
     }
 
-    // TODO: Add date handling and bulk recipes if necessary
     public static void AddMeal(List<Pair<Integer, String>> recipes, String timestamp, UserInfo userInfo, VolleyResponseListener volleyResponseListener) {
         String username = userInfo.getUsername();
         String hash = userInfo.getHash();
 
         String url = food_url + "mealplanner/" + username + "/items?apiKey=" + api_key + "&hash=" + hash;
         JSONArray bodyParameters = new JSONArray();
-        JSONObject bodyItem = new JSONObject();
         for (int i = 0; i < recipes.size(); i++) {
             int recipeId = recipes.get(i).first;
             String recipeTitle = recipes.get(i).second;
 
             try {
+                JSONObject bodyItem = new JSONObject();
                 bodyItem.put("date", timestamp);
                 bodyItem.put("slot", 1);
                 bodyItem.put("position", "0");
@@ -389,6 +382,105 @@ public class DataLinkREST {
                 System.out.println(error.getMessage());
             }
         });
+        DataLink.getInstance().addToRequestQueue(jsonObjectRequest);
+    }
+
+    public static void RetrieveInventories(VolleyResponseListener volleyResponseListener) {
+        String url = base_url + "retrieve";
+        JSONObject bodyParameters = new JSONObject();
+        try {
+            bodyParameters.put("user_id", DatabaseManager.userId);
+            // TODO: Preload data for demo
+//            bodyParameters.put("user_id", "1231234");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, url, bodyParameters,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        System.out.println(response);
+                        volleyResponseListener.onSuccess(response, "InventoryRetrieve");
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                volleyResponseListener.onFailure(error);
+                System.out.println(error.getMessage());
+            }
+        });
+
+        jsonObjectRequest.setShouldCache(false);
+        DataLink.getInstance().addToRequestQueue(jsonObjectRequest);
+    }
+
+    public static void SyncInventories(List<Food> foods, List<WastedFood> wastedFoods, VolleyResponseListener volleyResponseListener) {
+        String url = base_url + "store";
+        JSONObject bodyParameters = new JSONObject();
+        try {
+            bodyParameters.put("user_id", DatabaseManager.userId);
+            JSONArray foodInventory = new JSONArray();
+            JSONArray wastedFoodInventory = new JSONArray();
+            for (int i = 0; i < foods.size(); i++) {
+                Food food = foods.get(i);
+                JSONObject foodJson = new JSONObject();
+                foodJson.put("name", food.getName());
+                foodJson.put("stockType", food.getStockType());
+                foodJson.put("count", food.getNumber());
+                foodJson.put("category", Category.CategoryToString(food.getCategory()));
+                foodJson.put("expiration_date", food.getExpirationDate());
+                foodInventory.put(foodJson);
+            }
+            for (int i = 0; i < wastedFoods.size(); i++) {
+                WastedFood wastedFood = wastedFoods.get(i);
+                JSONObject wastedJson = new JSONObject();
+                wastedJson.put("name", wastedFood.getName());
+                wastedJson.put("stockType", wastedFood.getStockType());
+                wastedJson.put("count", wastedFood.getNumber());
+                wastedJson.put("category", Category.CategoryToString(wastedFood.getCategory()));
+                wastedJson.put("expiration_date", wastedFood.getExpirationDate());
+                wastedJson.put("reason", wastedFood.getReason());
+                wastedFoodInventory.put(wastedJson);
+            }
+            bodyParameters.put("food_inventory", foodInventory);
+            bodyParameters.put("waste_inventory", wastedFoodInventory);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        String requestBody = bodyParameters.toString();
+
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+
+            @Override
+            public void onResponse(String response) {
+                System.out.println(response);
+                volleyResponseListener.onSuccess(new JSONObject(), "InventorySync");
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                volleyResponseListener.onFailure(error);
+            }
+        }){
+            @Override
+            public byte[] getBody() throws AuthFailureError {
+                try {
+                    return requestBody == null ? null : requestBody.getBytes("utf-8");
+                } catch (UnsupportedEncodingException uee) {
+                    VolleyLog.wtf("Unsupported Encoding while trying to get the bytes of %s using %s", requestBody, "utf-8");
+                    return null;
+                }
+            }
+
+            @Override
+            public String getBodyContentType() {
+                return "application/json; charset=utf-8";
+            }
+        };
+        stringRequest.setShouldCache(false);
+        DataLink.getInstance().addToRequestQueue(stringRequest);
     }
 
     public static void GetSimilarRecipes(String recipeId, VolleyResponseListener volleyResponseListener) {
@@ -409,30 +501,6 @@ public class DataLinkREST {
                 System.out.println(error.getMessage());
             }
         });
-    }
-
-    // TODO: to be designed
-    public static void GetNutrition(User user) {
-        String url = base_url + "/users/{user_id}/shopping";
-        JSONObject userInfo = new JSONObject();
-
-        // pack user based info to jsonobject
-        //userinfo.put()
-
-        JsonArrayRequest jsonObjectRequest = new JsonArrayRequest(Request.Method.GET, url, null,
-                new Response.Listener<JSONArray>() {
-                    @Override
-                    public void onResponse(JSONArray response) {
-                        // Display the first 500 characters of the response string.
-                        // usually we do not care about the return for POST commend
-                    }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                System.out.println(error.getMessage());
-            }
-        });
-        DataLink.getInstance().addToRequestQueue(jsonObjectRequest);
     }
 
     // Get User stats from last cycle

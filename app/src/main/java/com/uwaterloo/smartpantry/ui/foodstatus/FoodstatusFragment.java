@@ -12,12 +12,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProviders;
 
+import com.android.volley.error.VolleyError;
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.components.XAxis;
@@ -31,14 +28,38 @@ import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
 import com.github.mikephil.charting.utils.ColorTemplate;
 import com.uwaterloo.smartpantry.R;
 
+import com.uwaterloo.smartpantry.data.InventoryMaps;
+import com.uwaterloo.smartpantry.data.Nutrition;
+import com.uwaterloo.smartpantry.data.UserData;
+import com.uwaterloo.smartpantry.data.Utility;
+import com.uwaterloo.smartpantry.database.DatabaseManager;
+import com.uwaterloo.smartpantry.datalink.DataLink;
+import com.uwaterloo.smartpantry.datalink.DataLinkREST;
+import com.uwaterloo.smartpantry.datalink.VolleyResponseListener;
+import com.uwaterloo.smartpantry.inventory.Category;
+import com.uwaterloo.smartpantry.inventory.Food;
+import com.uwaterloo.smartpantry.inventory.WastedFood;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.lang.reflect.Array;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
+import okhttp3.internal.Util;
+
+import static com.uwaterloo.smartpantry.database.DatabaseManager.getSharedInstance;
 
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link com.uwaterloo.smartpantry.ui.foodstatus.FoodstatusFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class FoodstatusFragment extends Fragment {
+public class FoodstatusFragment extends Fragment implements VolleyResponseListener {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -52,6 +73,9 @@ public class FoodstatusFragment extends Fragment {
 
     BarChart barChart;
     TextView barchartDescription;
+
+    private UserData userData = new UserData();
+    private DatabaseManager dbManager = getSharedInstance();
 
     public FoodstatusFragment() {
         // Required empty public constructor
@@ -81,16 +105,36 @@ public class FoodstatusFragment extends Fragment {
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        loadMealPlan();
+        loadInventories();
+    }
+
+    public void loadMealPlan() {
+        LocalDate localDate = LocalDate.now();
+        DataLinkREST.GetMealPlan(localDate.toString(), userData.getUserInfo(), this);
+    }
+
+    public void loadInventories() {
+        DataLinkREST.RetrieveInventories(this);
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_foodstatus, container, false);
+        DataLink.getInstance().initDataLink(this.getContext());
+        dbManager.initCouchbaseLite(getContext());
+        dbManager.openOrCreateDatabaseForUser(getContext(), DatabaseManager.currentUser);
+        userData.loadUser();
 
         pie_chart = v.findViewById(R.id.pie_chart);
 
-
-        pie_chart.setData(addPieChartData());
+//        pie_chart.setData(addPieChartData());
         pie_chart.setBackgroundColor(Color.WHITE);
         pie_chart.setDrawSlicesUnderHole(false);
         pie_chart.setDrawHoleEnabled(true);
@@ -99,50 +143,54 @@ public class FoodstatusFragment extends Fragment {
         pie_chart.animateXY(2000, 2000);
 
         pie_chartDescription = v.findViewById(R.id.pie_chart_description);
-        pie_chartDescription.setText(getpieChartDescription());
+//        pie_chartDescription.setText(getpieChartDescription());
 
         barChart = v.findViewById(R.id.bar_chart);
 
 
-        BarDataSet barDataSet1 = new BarDataSet(populateLastCycleData(), "Last Cycle");
-        barDataSet1.setColor(Color.LTGRAY);
+//        BarDataSet barDataSet1 = new BarDataSet(populateLastCycleData(), "Last Cycle");
+//        barDataSet1.setColor(Color.LTGRAY);
+//
+//        BarDataSet barDataSet2 = new BarDataSet(populateCurrentCycleData(), "Current Cycle");
+//        barDataSet2.setColor(Color.GREEN);
 
-        BarDataSet barDataSet2 = new BarDataSet(populateCurrentCycleData(), "Current Cycle");
-        barDataSet2.setColor(Color.GREEN);
-
-        BarData data = new BarData(barDataSet1, barDataSet2);
-        barChart.setData(data);
+//        BarData data = new BarData(barDataSet1, barDataSet2);
+//        barChart.setData(data);
 
 
-        XAxis xAxis = barChart.getXAxis();
-        xAxis.setValueFormatter(new IndexAxisValueFormatter(populateLabels()));
-        xAxis.setCenterAxisLabels(true);
-        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
-        xAxis.setGranularity(1);
-        xAxis.setGranularityEnabled(true);
-
-        barChart.setDragEnabled(true);
-        barChart.setVisibleXRangeMaximum(6);
-        float barSpace = 0.1f;
-        float groupspace = 0.5f;
-        data.setBarWidth(0.15f);
-        barChart.getXAxis().setAxisMinimum(0);
-        //barChart.getXAxis().setAxisMaximum(0+barChart.getBarData().getGroupWidth(groupspace, barSpace) * 7);
-        barChart.groupBars(0, groupspace, barSpace);
-        barChart.invalidate();
-        barChart.getDescription().setEnabled(false);
-
-        barchartDescription = v.findViewById(R.id.bar_chart_description);
-        barchartDescription.setText("The highest wasted in current cycle is Fruit");
+//        XAxis xAxis = barChart.getXAxis();
+//        xAxis.setValueFormatter(new IndexAxisValueFormatter(populateLabels()));
+//        xAxis.setCenterAxisLabels(true);
+//        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+//        xAxis.setGranularity(1);
+//        xAxis.setGranularityEnabled(true);
+//
+//        barChart.setDragEnabled(true);
+//        barChart.setVisibleXRangeMaximum(6);
+//        float barSpace = 0.1f;
+//        float groupspace = 0.5f;
+//        data.setBarWidth(0.15f);
+//        barChart.getXAxis().setAxisMinimum(0);
+//        //barChart.getXAxis().setAxisMaximum(0+barChart.getBarData().getGroupWidth(groupspace, barSpace) * 7);
+//        barChart.groupBars(0, groupspace, barSpace);
+//        barChart.invalidate();
+//        barChart.getDescription().setEnabled(false);
+//
+//        barchartDescription = v.findViewById(R.id.bar_chart_description);
+//        barchartDescription.setText("The highest wasted in current cycle is Fruit");
         return v;
     }
 
-    private PieData addPieChartData() {
+    private PieData addPieChartData(Nutrition nutrition) {
         ArrayList<PieEntry> myPieData = new ArrayList<>();
+        float total = nutrition.getCarbohydrates() + nutrition.getFat() + nutrition.getProtein();
+        float fatDist = nutrition.getFat() / total * 100;
+        float carbDist = nutrition.getCarbohydrates() / total * 100;
+        float protDist = nutrition.getProtein() / total * 100;
 
-        myPieData.add(new PieEntry(30, "Fat"));
-        myPieData.add(new PieEntry(40, "Carbs"));
-        myPieData.add(new PieEntry(30, "Protein"));
+        myPieData.add(new PieEntry(fatDist, "Fat"));
+        myPieData.add(new PieEntry(carbDist, "Carbs"));
+        myPieData.add(new PieEntry(protDist, "Protein"));
 
         PieDataSet pieDataSet = new PieDataSet(myPieData, "Nutrition Data");
         pieDataSet.setSliceSpace(3f);
@@ -185,7 +233,7 @@ public class FoodstatusFragment extends Fragment {
     private SpannableString generateCenterSpannableText() {
 
         SpannableString s = new SpannableString("NutritionChart\n Under  Current Cycle");
-        s.setSpan(new RelativeSizeSpan(1.7f), 0, 14, 0);
+        s.setSpan(new RelativeSizeSpan(1.4f), 0, 14, 0);
         s.setSpan(new StyleSpan(Typeface.NORMAL), 14, s.length() - 15, 0);
         s.setSpan(new ForegroundColorSpan(Color.GRAY), 14, s.length() - 15, 0);
         s.setSpan(new RelativeSizeSpan(.8f), 14, s.length() - 15, 0);
@@ -194,8 +242,20 @@ public class FoodstatusFragment extends Fragment {
         return s;
     }
 
-    private String getpieChartDescription() {
-        return "Your highest consumption is carbonhydate, which is 40% of nutrition income";
+    private String getpieChartDescription(Nutrition nutrition) {
+        float total = nutrition.getCarbohydrates() + nutrition.getFat() + nutrition.getProtein();
+        float fatDist = nutrition.getFat() / total * 100;
+        float carbDist = nutrition.getCarbohydrates() / total * 100;
+        float protDist = nutrition.getProtein() / total * 100;
+
+        List<Float> distList = new ArrayList<Float>();
+        distList.add(fatDist);
+        distList.add(carbDist);
+        distList.add(protDist);
+        float max = Collections.max(distList);
+        int index = distList.indexOf(max);
+        String[] nutrients = new String[] {"fats", "carbohydrates", "proteins"};
+        return String.format("Your highest nutrient consumption is %s, which is %f%% of your nutrition intake", nutrients[index], max);
     }
 
     private ArrayList<BarEntry> populateLastCycleData() {
@@ -225,5 +285,99 @@ public class FoodstatusFragment extends Fragment {
     private String[] populateLabels() {
         String[] categories = new String[] {"Meat", "Fruit", "Veges", "bread", "Fats", "Milk", "Cheese"};
         return  categories;
+    }
+
+    public void loadCurrentCycle(InventoryMaps inventoryMaps) {
+        Map<String, Food> oldestFoodMap = inventoryMaps.getOldestFoodMap();
+        Map<String, WastedFood> wastedFoodMap = inventoryMaps.getWastedFoodMap();
+        ArrayList<BarEntry> barEntries = new ArrayList<>();
+
+        float totalMeat = Utility.getFoodQuantityCategorized(Category.CategoryEnum.MEAT, oldestFoodMap);
+        float wastedMeat = Utility.getWastedFoodQuantityCategorized(Category.CategoryEnum.MEAT, wastedFoodMap);
+        float wastedMeatPercent = wastedMeat / totalMeat * 100;
+        barEntries.add(new BarEntry(0, wastedMeatPercent));
+
+        float totalFruit = Utility.getFoodQuantityCategorized(Category.CategoryEnum.FRUIT, oldestFoodMap);
+        float wastedFruit = Utility.getWastedFoodQuantityCategorized(Category.CategoryEnum.FRUIT, wastedFoodMap);
+        float wastedFruitPercent = wastedFruit / totalFruit * 100;
+        barEntries.add(new BarEntry(1, wastedFruitPercent));
+
+        float totalVegetable = Utility.getFoodQuantityCategorized(Category.CategoryEnum.VEGETABLE, oldestFoodMap);
+        float wastedVegetable = Utility.getWastedFoodQuantityCategorized(Category.CategoryEnum.VEGETABLE, wastedFoodMap);
+        float wastedVegetablePercent = wastedVegetable / totalVegetable * 100;
+        barEntries.add(new BarEntry(2, wastedVegetablePercent));
+
+        Map<String, Food> otherFoodMap = Utility.getCategorized(Category.CategoryEnum.OTHER, oldestFoodMap);
+        Map<String, WastedFood> otherWastedFoodMap = Utility.getWastedCategorized(Category.CategoryEnum.OTHER, wastedFoodMap);
+
+        ArrayList<String> labels = new ArrayList<String>();
+        labels.add("Meat");
+        labels.add("Fruit");
+        labels.add("Vegetables");
+
+        otherWastedFoodMap.keySet().forEach((key) -> {
+            WastedFood wastedFood = otherWastedFoodMap.get(key);
+            labels.add(wastedFood.getName());
+        });
+
+        for (int i = 3; i < labels.size(); i++) {
+            float totalQuantity = otherFoodMap.get(labels.get(i)).getNumber().floatValue();
+            float wastedQuantity = otherWastedFoodMap.get(labels.get(i)).getNumber().floatValue();
+            float wastedPercent = wastedQuantity / totalQuantity * 100;
+            barEntries.add(new BarEntry(i, wastedPercent));
+        }
+
+        BarDataSet barDataSet = new BarDataSet(barEntries, "Current Cycle");
+        barDataSet.setColor(Color.GREEN);
+
+        BarData data = new BarData(barDataSet);
+        barChart.setData(data);
+
+        XAxis xAxis = barChart.getXAxis();
+        xAxis.setValueFormatter(new IndexAxisValueFormatter(labels.toArray(new String[labels.size()])));
+        xAxis.setCenterAxisLabels(false);
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+        xAxis.setGranularity(1);
+        xAxis.setGranularityEnabled(true);
+
+        barChart.setDragEnabled(true);
+        barChart.setVisibleXRangeMaximum(6);
+
+        data.setBarWidth(0.15f);
+        barChart.getXAxis().setAxisMinimum(0);
+
+        barChart.invalidate();
+        barChart.getDescription().setEnabled(false);
+
+        barchartDescription = getView().findViewById(R.id.bar_chart_description);
+        barchartDescription.setText("");
+
+    }
+
+    @Override
+    public void onSuccess(JSONArray response, String type) {
+
+    }
+
+    @Override
+    public void onSuccess(JSONObject response, String type) {
+        switch(type){
+            case "GetMealPlan":
+                Nutrition nutrition = Nutrition.parseNutrients(response);
+                pie_chart.setData(addPieChartData(nutrition));
+                pie_chartDescription.setText(getpieChartDescription(nutrition));
+                break;
+            case "InventoryRetrieve":
+                InventoryMaps inventoryMaps = Utility.parseInventories(response);
+                loadCurrentCycle(inventoryMaps);
+                break;
+            default:
+                break;
+        }
+    }
+
+    @Override
+    public void onFailure(VolleyError error) {
+
     }
 }

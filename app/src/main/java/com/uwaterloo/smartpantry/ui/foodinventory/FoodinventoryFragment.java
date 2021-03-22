@@ -1,5 +1,8 @@
 package com.uwaterloo.smartpantry.ui.foodinventory;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -16,6 +19,8 @@ import android.widget.PopupMenu;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentResultListener;
@@ -27,6 +32,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.android.volley.error.VolleyError;
 import com.couchbase.lite.internal.utils.StringUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.uwaterloo.smartpantry.MainActivity;
 import com.uwaterloo.smartpantry.R;
 import com.uwaterloo.smartpantry.adapter.InventoryItemAdapter;
 import com.uwaterloo.smartpantry.adapter.MealPlanItemAdapter;
@@ -38,6 +44,9 @@ import com.uwaterloo.smartpantry.inventory.Category;
 import com.uwaterloo.smartpantry.inventory.Food;
 import com.uwaterloo.smartpantry.inventory.FoodInventory;
 import com.uwaterloo.smartpantry.inventory.MealPlanItem;
+import com.uwaterloo.smartpantry.inventory.UpdateInventory;
+import com.uwaterloo.smartpantry.inventory.WastedFood;
+import com.uwaterloo.smartpantry.inventory.WastedFoodInventory;
 import com.uwaterloo.smartpantry.ui.camera.CameraFragment;
 import com.uwaterloo.smartpantry.ui.recommendation.RecommendationMealPlanFragment;
 
@@ -119,22 +128,6 @@ public class FoodinventoryFragment extends Fragment implements VolleyResponseLis
         foodInventory.loadInventory();
     }
 
-    public void initLoad() {
-        foodInventory.loadInventory();
-        Food toShop1 = new Food();
-        toShop1.setName("orange");
-        toShop1.setCategory(Category.CategoryEnum.FRUIT);
-        toShop1.setStockType("lbs");
-        toShop1.setNumber(5.0);
-        toShop1.setExpirationDate("2021-1-3");
-        try {
-            foodInventory.addItemToInventory(toShop1);
-            foodInventory.saveInventory();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -144,6 +137,15 @@ public class FoodinventoryFragment extends Fragment implements VolleyResponseLis
         DataLink.getInstance().initDataLink(this.getContext());
         dbManager.initCouchbaseLite(getContext());
         dbManager.openOrCreateDatabaseForUser(getContext(), DatabaseManager.currentUser);
+
+        UpdateInventory updateInventory = new UpdateInventory();
+        try {
+            ArrayList<String> alerts = updateInventory.DateCheck();
+            SendNotifications(alerts);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         foodInventory.loadInventory();
         foodsList = foodInventory.exportInventory();
 
@@ -174,7 +176,6 @@ public class FoodinventoryFragment extends Fragment implements VolleyResponseLis
             }
         }).attachToRecyclerView(recyclerView);
 
-
         buttonAddInventoryItem.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -190,6 +191,8 @@ public class FoodinventoryFragment extends Fragment implements VolleyResponseLis
                             case R.id.camera_add:
                                 CameraFragment cameraFragment = new CameraFragment();
                                 fragmentTransaction.replace(android.R.id.content, cameraFragment);
+                                fragmentTransaction.addToBackStack(null);
+                                fragmentTransaction.commit();
                                 break;
                             case R.id.gallery_add:
                                 Intent intent = new Intent();
@@ -200,17 +203,24 @@ public class FoodinventoryFragment extends Fragment implements VolleyResponseLis
                             case R.id.manual_add:
                                 onIngredientDialogClick("");
                                 break;
+                            case R.id.inventory_sync:
+                                FoodInventory foodInventory = new FoodInventory();
+                                foodInventory.loadInventory();
+                                List<Food> foods = foodInventory.exportInventory();
+
+                                WastedFoodInventory wastedFoodInventory = new WastedFoodInventory();
+                                wastedFoodInventory.loadInventory();
+                                List<WastedFood> wastedFoods = wastedFoodInventory.exportInventory();
+
+                                DataLinkREST.SyncInventories(foods, wastedFoods, FoodinventoryFragment.this);
+                                break;
                             default:
                                 break;
                         }
-                        fragmentTransaction.addToBackStack(null);
-                        fragmentTransaction.commit();
-
                         return true;
                     }
                 });
                 popupMenu.show();
-
             }
         });
         return view;
@@ -265,7 +275,9 @@ public class FoodinventoryFragment extends Fragment implements VolleyResponseLis
                     e.printStackTrace();
                 }
                 break;
-
+            case "InventorySync":
+                Toast.makeText(getContext(), "Inventory Synced", Toast.LENGTH_SHORT).show();
+                break;
             default:
                 break;
         }
@@ -313,5 +325,22 @@ public class FoodinventoryFragment extends Fragment implements VolleyResponseLis
         EditInventoryDialog editInventoryDialog = new EditInventoryDialog(food);
         editInventoryDialog.setTargetFragment(this, 1);
         editInventoryDialog.show(getFragmentManager(), "EditIngredient");
+    }
+
+    public void SendNotifications(ArrayList<String> alerts) {
+        String CHANNEL_ID = "CHANNEL_ID";
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getContext());
+        notificationManager.createNotificationChannel(new NotificationChannel(CHANNEL_ID, "SmartPantry", NotificationManager.IMPORTANCE_DEFAULT));
+        Intent intent = new Intent(getContext(), MainActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(getContext(), (int) System.currentTimeMillis(), intent, 0);
+        for (int i = 0; i < alerts.size(); i++) {
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(getContext(), CHANNEL_ID)
+                    .setSmallIcon(R.drawable.ic_baseline_notifications_24)
+                    .setContentTitle("Food Inventory")
+                    .setContentIntent(pendingIntent)
+                    .setContentText(alerts.get(i))
+                    .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+            notificationManager.notify(1, builder.build());
+        }
     }
 }

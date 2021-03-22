@@ -11,4 +11,7 @@
     <item
         android:id="@+id/manual_add"
         android:title="Add Manually" />
+    <item
+        android:id="@+id/inventory_sync"
+        android:title="Cloud Sync" />
 </menu>
