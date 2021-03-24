@@ -16,6 +16,7 @@ import com.uwaterloo.smartpantry.database.DatabaseManager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -66,6 +67,14 @@ public class FoodInventory{
         return FoodNames;
     }
 
+    public List<Food> exportInventory() {
+        ArrayList<Food> foods = new ArrayList<Food>();
+        inventoryMap.keySet().forEach((key) -> {
+            foods.add(getFood(key));
+        });
+        return foods;
+    }
+
     public void updateItem(String item_name, Food item) {
         if (inventoryMap.containsKey(item_name)) {
             inventoryMap.remove(item_name);
@@ -76,6 +85,7 @@ public class FoodInventory{
     public boolean loadInventory() {
         try {
             Database database = DatabaseManager.getDatabase(DatabaseManager.inventoryDbStr);
+            clearInventory();
             Query query = QueryBuilder.select(
                     SelectResult.expression(Meta.id),
                     SelectResult.property(Food.nameString),

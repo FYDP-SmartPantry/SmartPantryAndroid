@@ -63,7 +63,6 @@ public class LoginActivity extends AppCompatActivity {
                 }
             }
         });
-
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
         googleSignInClient = GoogleSignIn.getClient(this, gso);
     }
@@ -88,6 +87,8 @@ public class LoginActivity extends AppCompatActivity {
         try {
             GoogleSignInAccount account = completedTask.getResult(ApiException.class);
             DatabaseManager.currentUser = account.getEmail();
+            DatabaseManager.userId = account.getId();
+
             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
             startActivity(intent);
         } catch (ApiException e) {

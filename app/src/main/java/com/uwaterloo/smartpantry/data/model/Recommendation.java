@@ -15,9 +15,9 @@ import java.util.stream.Collectors;
 
 public class Recommendation {
     private List<Pair<Integer, String>> recipes;
-    private JSONArray recipeInstructions;
 
     public Recommendation() {
+        this.recipes = new ArrayList<Pair<Integer, String>>();
     }
 
     public List<Pair<Integer, String>> getRecipes() {
@@ -32,12 +32,32 @@ public class Recommendation {
         this.recipes = recipes;
     }
 
-    public JSONArray getRecipeInstructions() {
-        return recipeInstructions;
+    public void parseRecipes(JSONObject jsonObject) {
+        recipes = new ArrayList<Pair<Integer, String>>();
+        try {
+            JSONArray jsonArray = jsonObject.getJSONArray("results");
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject result = jsonArray.getJSONObject(i);
+                Pair<Integer, String> p = Pair.create((Integer) result.get("id"), (String) result.get("title"));
+                recipes.add(p);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
-    public void setRecipeInstructions(JSONArray recipeInstructions) {
-        this.recipeInstructions = recipeInstructions;
+    public void parseRandom(JSONObject jsonObject) {
+        recipes = new ArrayList<Pair<Integer, String>>();
+        try {
+            JSONArray jsonArray = jsonObject.getJSONArray("recipes");
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject result = jsonArray.getJSONObject(i);
+                Pair<Integer, String> p = Pair.create((Integer) result.get("id"), (String) result.get("title"));
+                recipes.add(p);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     public void parseAndAddRecipes(JSONArray jsonArray) {
@@ -93,7 +113,7 @@ public class Recommendation {
         try {
             sourceUrl = jsonObject.getString("sourceUrl");
             // spoonacularSourceUrl may not exist for all recipes
-            sourceUrl = jsonObject.getString("spoonacularSourceUrl");
+//            sourceUrl = jsonObject.getString("spoonacularSourceUrl");
         } catch (JSONException e) {
             e.printStackTrace();
         }

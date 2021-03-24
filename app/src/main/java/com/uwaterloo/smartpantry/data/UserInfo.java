@@ -1,5 +1,7 @@
 package com.uwaterloo.smartpantry.data;
 
+import com.couchbase.lite.internal.utils.StringUtils;
+
 public class UserInfo {
     public final static String usernameString = "username";
     public final static String hashString = "hash";
@@ -24,4 +26,8 @@ public class UserInfo {
     }
 
     public UserInfo(){};
+
+    public boolean isSet() {
+        return StringUtils.isEmpty(username) || StringUtils.isEmpty(hash);
+    }
 }

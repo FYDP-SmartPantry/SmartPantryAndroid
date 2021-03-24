@@ -1,13 +1,7 @@
 package com.uwaterloo.smartpantry.inventory;
 
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.Application;
-
-import com.uwaterloo.smartpantry.MainActivity;
-
+import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
 
 public class UpdateInventory {
     public UpdateInventory() {}
@@ -19,17 +13,13 @@ public class UpdateInventory {
         currentWInv.loadInventory();
 
         ArrayList<String> FoodNames = currentInv.ListOfFoods();
-        Date CurrentTime = new Date();
+        LocalDate CurrentTime = LocalDate.now();
         ArrayList<String> AlertList = new ArrayList();
 
         for(String name : FoodNames){
             Food CurrentItem = currentInv.getFood(name);
-            String NumDate = CurrentItem.getExpirationDate();
-            String ExpYear = NumDate.substring(0,3);
-            String ExpMonth = NumDate.substring(5,6);
-            String ExpDay = NumDate.substring(8,9);
-            Date ExpDate = new Date(Integer.parseInt(ExpYear)-1900,Integer.parseInt(ExpMonth),Integer.parseInt(ExpDay));
-            if(	CurrentTime.after(ExpDate)){
+            LocalDate localDate = LocalDate.parse(CurrentItem.getExpirationDate());
+            if(	CurrentTime.isAfter(localDate)){
                 WastedFood food = new WastedFood();
                 food.setName(CurrentItem.getName());
                 food.setCategory(CurrentItem.getCategory());
@@ -40,8 +30,8 @@ public class UpdateInventory {
                 currentInv.removeItemFromInventory(CurrentItem);
                 AlertList.add(CurrentItem.getName()+": Expired");
             }else{
-                if(CurrentTime.compareTo(ExpDate) < 4){
-                    String DayLeft = String.valueOf(CurrentTime.compareTo(ExpDate));
+                if(CurrentTime.compareTo(localDate) < 4){
+                    String DayLeft = String.valueOf(CurrentTime.compareTo(localDate));
                     AlertList.add(CurrentItem.getName()+": "+ DayLeft + " days left");
                 }
             }

@@ -44,6 +44,7 @@ public class ShoppinglistFragment extends Fragment {
     private RecyclerView recyclerView;
     private boolean isOpen = false;
     private List<GroceryItem> shoppingList = new ArrayList<>();
+    ShoppingItemAdapter adapter = new ShoppingItemAdapter();
 
     public ShoppinglistFragment() {
         // Required empty public constructor
@@ -73,8 +74,15 @@ public class ShoppinglistFragment extends Fragment {
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
         ShoppingList shoppingListobj = ShoppingList.getInstance();
-        shoppingListobj.loadTestData();
+        shoppingListobj.loadInventory();
+//        shoppingListobj.loadTestData();
         shoppingList = shoppingListobj.getShoppingList();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        adapter.notifyDataSetChanged();
     }
 
     @Override
@@ -93,7 +101,6 @@ public class ShoppinglistFragment extends Fragment {
                 fragmentTransaction.replace(((ViewGroup)getView().getParent()).getId(), fragment);
                 fragmentTransaction.addToBackStack(null);
                 fragmentTransaction.commit();
-
             }
         });
 
@@ -102,8 +109,6 @@ public class ShoppinglistFragment extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.setHasFixedSize(true);
 
-        ShoppingItemAdapter adapter = new ShoppingItemAdapter();
-        // ShoppingItemAdapter adapter = new ShoppingItemAdapter(getContext(), shoppingList);
         adapter.setShoppingList(shoppingList);
         recyclerView.setAdapter(adapter);
 
@@ -117,16 +122,17 @@ public class ShoppinglistFragment extends Fragment {
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
                 ShoppingList shoppingListobj = ShoppingList.getInstance();
                 shoppingListobj.removeItemFromInventory(adapter.getGroceryItemAt(viewHolder.getAdapterPosition()));
+                shoppingListobj.saveInventory();
                 adapter.notifyDataSetChanged();
                 Toast.makeText(getActivity(), "item removed", Toast.LENGTH_SHORT).show();
             }
         }).attachToRecyclerView(recyclerView);
 
-        //for edit item. do we need this?
-//        adapter.setOnItemClickListener(new ShoppingItemAdapter.OnItemClickListener() {
+//        FloatingActionButton buttonRecommendation = view.findViewById(R.id.shoppinglistrecommd_fap);
+//        buttonRecommendation.setOnClickListener(new View.OnClickListener() {
 //            @Override
-//            public void onItemClick(GroceryItem item) {
-//                AddItemToShoppinglistFragment fragment = new AddItemToShoppinglistFragment();
+//            public void onClick(View v) {
+//                RecommendationFragment fragment = new RecommendationFragment();
 //                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
 //                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 //                fragmentTransaction.replace(((ViewGroup)getView().getParent()).getId(), fragment);
@@ -135,27 +141,15 @@ public class ShoppinglistFragment extends Fragment {
 //            }
 //        });
 
-        FloatingActionButton buttonRecommendation = view.findViewById(R.id.shoppinglistrecommd_fap);
-        buttonRecommendation.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                RecommendationFragment fragment = new RecommendationFragment();
-                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                fragmentTransaction.replace(((ViewGroup)getView().getParent()).getId(), fragment);
-                fragmentTransaction.addToBackStack(null);
-                fragmentTransaction.commit();
-            }
-        });
-
         FloatingActionButton buttonClear = view.findViewById(R.id.shoppinglistclear_fap);
         buttonClear.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 ShoppingList shoppingListobj = ShoppingList.getInstance();
                 shoppingListobj.clearInventory();
+                shoppingListobj.saveInventory();
                 buttonAddShoppingItem.setVisibility(View.INVISIBLE);
-                buttonRecommendation.setVisibility(View.INVISIBLE);
+//                buttonRecommendation.setVisibility(View.INVISIBLE);
                 buttonClear.setVisibility(View.INVISIBLE);
                 adapter.notifyDataSetChanged();
                 isOpen = false;
@@ -169,12 +163,12 @@ public class ShoppinglistFragment extends Fragment {
             public void onClick(View v) {
                 if (isOpen) {
                     buttonAddShoppingItem.setVisibility(View.INVISIBLE);
-                    buttonRecommendation.setVisibility(View.INVISIBLE);
+//                    buttonRecommendation.setVisibility(View.INVISIBLE);
                     buttonClear.setVisibility(View.INVISIBLE);
                     isOpen = false;
                 } else {
                     buttonAddShoppingItem.setVisibility(View.VISIBLE);
-                    buttonRecommendation.setVisibility(View.VISIBLE);
+//                    buttonRecommendation.setVisibility(View.VISIBLE);
                     buttonClear.setVisibility(View.VISIBLE);
                     isOpen = true;
                 }

@@ -1,8 +1,9 @@
 package com.uwaterloo.smartpantry.inventory;
-import com.couchbase.lite.Array;
+
 import com.couchbase.lite.CouchbaseLiteException;
 import com.couchbase.lite.DataSource;
 import com.couchbase.lite.Database;
+import com.couchbase.lite.Document;
 import com.couchbase.lite.Meta;
 import com.couchbase.lite.MutableDocument;
 import com.couchbase.lite.Ordering;
@@ -14,8 +15,8 @@ import com.couchbase.lite.SelectResult;
 import com.uwaterloo.smartpantry.database.DatabaseManager;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class WastedFoodInventory {
@@ -65,10 +66,19 @@ public class WastedFoodInventory {
         inventoryMap.put(item_name, item);
     }
 
+    public List<WastedFood> exportInventory() {
+        ArrayList<WastedFood> foods = new ArrayList<WastedFood>();
+        inventoryMap.keySet().forEach((key) -> {
+            foods.add(getWastedFood(key));
+        });
+        return foods;
+    }
+
     //@Override
     public boolean loadInventory() {
         try {
             Database database = DatabaseManager.getDatabase(DatabaseManager.wastedFoodDbStr);
+            clearInventory();
             Query query = QueryBuilder.select(
                     SelectResult.expression(Meta.id),
                     SelectResult.property(WastedFood.nameString),
@@ -100,6 +110,7 @@ public class WastedFoodInventory {
     public boolean saveInventory() {
         try {
             Database database = DatabaseManager.getDatabase(DatabaseManager.wastedFoodDbStr);
+            wipeDatabase();
             for (Map.Entry<String, WastedFood> food : inventoryMap.entrySet()) {
                 MutableDocument mutableDocument = new MutableDocument();
                 mutableDocument.setString(Food.nameString, food.getValue().getName());
@@ -120,6 +131,22 @@ public class WastedFoodInventory {
             e.printStackTrace();
         }
         return false;
+    }
+
+    public void wipeDatabase() {
+        try {
+            Database database = DatabaseManager.getDatabase(DatabaseManager.wastedFoodDbStr);
+            Query query = QueryBuilder.select(SelectResult.expression(Meta.id), SelectResult.all())
+                    .from(DataSource.database(database));
+            ResultSet rs = query.execute();
+            for (Result result : rs) {
+                String id = result.getString(0);
+                Document doc = database.getDocument(id);
+                database.delete(doc);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     //@Override

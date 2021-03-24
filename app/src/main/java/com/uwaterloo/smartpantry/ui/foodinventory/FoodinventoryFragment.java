@@ -1,5 +1,8 @@
 package com.uwaterloo.smartpantry.ui.foodinventory;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -11,20 +14,28 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.PopupMenu;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentResultListener;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.volley.error.VolleyError;
 import com.couchbase.lite.internal.utils.StringUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.uwaterloo.smartpantry.MainActivity;
 import com.uwaterloo.smartpantry.R;
+import com.uwaterloo.smartpantry.adapter.InventoryItemAdapter;
+import com.uwaterloo.smartpantry.adapter.MealPlanItemAdapter;
 import com.uwaterloo.smartpantry.database.DatabaseManager;
 import com.uwaterloo.smartpantry.datalink.DataLink;
 import com.uwaterloo.smartpantry.datalink.DataLinkREST;
@@ -32,9 +43,12 @@ import com.uwaterloo.smartpantry.datalink.VolleyResponseListener;
 import com.uwaterloo.smartpantry.inventory.Category;
 import com.uwaterloo.smartpantry.inventory.Food;
 import com.uwaterloo.smartpantry.inventory.FoodInventory;
+import com.uwaterloo.smartpantry.inventory.MealPlanItem;
+import com.uwaterloo.smartpantry.inventory.UpdateInventory;
+import com.uwaterloo.smartpantry.inventory.WastedFood;
+import com.uwaterloo.smartpantry.inventory.WastedFoodInventory;
 import com.uwaterloo.smartpantry.ui.camera.CameraFragment;
-import com.uwaterloo.smartpantry.ui.foodinventory.CustomListAdapter;
-import com.uwaterloo.smartpantry.ui.foodinventory.FoodItem;
+import com.uwaterloo.smartpantry.ui.recommendation.RecommendationMealPlanFragment;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -44,13 +58,16 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link com.uwaterloo.smartpantry.ui.foodinventory.FoodinventoryFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class FoodinventoryFragment extends Fragment implements VolleyResponseListener, SelectIngredientDialog.DialogListener, AddInventoryDialog.InventoryDialogListener {
+public class FoodinventoryFragment extends Fragment implements VolleyResponseListener,
+        SelectIngredientDialog.DialogListener, AddInventoryDialog.InventoryDialogListener,
+        InventoryItemAdapter.OnItemClickListener{
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -62,6 +79,9 @@ public class FoodinventoryFragment extends Fragment implements VolleyResponseLis
 
     private DatabaseManager dbManager = DatabaseManager.getSharedInstance();
     private FoodInventory foodInventory = new FoodInventory();
+
+    private List<Food> foodsList = new ArrayList<Food>();
+    private InventoryItemAdapter adapter = new InventoryItemAdapter();
 
     public FoodinventoryFragment() {
         // Required empty public constructor
@@ -108,22 +128,6 @@ public class FoodinventoryFragment extends Fragment implements VolleyResponseLis
         foodInventory.loadInventory();
     }
 
-    public void initLoad() {
-        foodInventory.loadInventory();
-        Food toShop1 = new Food();
-        toShop1.setName("orange");
-        toShop1.setCategory(Category.CategoryEnum.FRUIT);
-        toShop1.setStockType("lbs");
-        toShop1.setNumber(5.0);
-        toShop1.setExpirationDate("2021-1-3");
-        try {
-            foodInventory.addItemToInventory(toShop1);
-            foodInventory.saveInventory();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -133,25 +137,44 @@ public class FoodinventoryFragment extends Fragment implements VolleyResponseLis
         DataLink.getInstance().initDataLink(this.getContext());
         dbManager.initCouchbaseLite(getContext());
         dbManager.openOrCreateDatabaseForUser(getContext(), DatabaseManager.currentUser);
+
+        UpdateInventory updateInventory = new UpdateInventory();
+        try {
+            ArrayList<String> alerts = updateInventory.DateCheck();
+            SendNotifications(alerts);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         foodInventory.loadInventory();
-//        initLoad();
+        foodsList = foodInventory.exportInventory();
 
-        FoodItem food1 = new FoodItem("Apple", "2", "2021.10.10");
-        FoodItem food2 = new FoodItem("Banana", "3", "2021.11.11");
-        FoodItem food3 = new FoodItem("Pear", "10", "2021.12.12");
-        // Setup the data source
-        ArrayList<FoodItem> foodInventoryArrayList = new ArrayList<FoodItem>();
+        RecyclerView recyclerView = view.findViewById(R.id.inventory_recycler_view);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        recyclerView.setHasFixedSize(true);
 
-        foodInventoryArrayList.add(food1);
-        foodInventoryArrayList.add(food2);
-        foodInventoryArrayList.add(food3);
+        adapter.setItems(foodsList);
+        adapter.setOnItemClickListener(this::onItemClick);
+        recyclerView.setAdapter(adapter);
 
-        // instantiate the custom list adapter
-        CustomListAdapter adapter = new CustomListAdapter(getActivity(), android.R.layout.simple_list_item_1, foodInventoryArrayList);
+        new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                return false;
+            }
 
-        // get the ListView and attach the adapter
-        ListView listView = view.findViewById(R.id.food_inventory_list);
-        listView.setAdapter(adapter);
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                Food food = foodsList.remove(viewHolder.getAdapterPosition());
+
+                foodInventory.removeItemFromInventory(food);
+                foodInventory.saveInventory();
+
+                adapter.setItems(foodsList);
+                adapter.notifyDataSetChanged();
+                Toast.makeText(getContext(), "Item removed from inventory", Toast.LENGTH_SHORT).show();
+            }
+        }).attachToRecyclerView(recyclerView);
 
         buttonAddInventoryItem.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -168,6 +191,8 @@ public class FoodinventoryFragment extends Fragment implements VolleyResponseLis
                             case R.id.camera_add:
                                 CameraFragment cameraFragment = new CameraFragment();
                                 fragmentTransaction.replace(android.R.id.content, cameraFragment);
+                                fragmentTransaction.addToBackStack(null);
+                                fragmentTransaction.commit();
                                 break;
                             case R.id.gallery_add:
                                 Intent intent = new Intent();
@@ -178,17 +203,24 @@ public class FoodinventoryFragment extends Fragment implements VolleyResponseLis
                             case R.id.manual_add:
                                 onIngredientDialogClick("");
                                 break;
+                            case R.id.inventory_sync:
+                                FoodInventory foodInventory = new FoodInventory();
+                                foodInventory.loadInventory();
+                                List<Food> foods = foodInventory.exportInventory();
+
+                                WastedFoodInventory wastedFoodInventory = new WastedFoodInventory();
+                                wastedFoodInventory.loadInventory();
+                                List<WastedFood> wastedFoods = wastedFoodInventory.exportInventory();
+
+                                DataLinkREST.SyncInventories(foods, wastedFoods, FoodinventoryFragment.this);
+                                break;
                             default:
                                 break;
                         }
-                        fragmentTransaction.addToBackStack(null);
-                        fragmentTransaction.commit();
-
                         return true;
                     }
                 });
                 popupMenu.show();
-
             }
         });
         return view;
@@ -243,7 +275,9 @@ public class FoodinventoryFragment extends Fragment implements VolleyResponseLis
                     e.printStackTrace();
                 }
                 break;
-
+            case "InventorySync":
+                Toast.makeText(getContext(), "Inventory Synced", Toast.LENGTH_SHORT).show();
+                break;
             default:
                 break;
         }
@@ -263,18 +297,50 @@ public class FoodinventoryFragment extends Fragment implements VolleyResponseLis
     }
 
     @Override
-    public void onAddDialogClick(String ingredient, String stock, Double quantity, Category.CategoryEnum category, String expirationDate) {
-        Food food = new Food();
-        food.setName(ingredient);
-        food.setStockType(stock);
-        food.setCategory(category);
-        food.setNumber(quantity);
-        food.setExpirationDate(expirationDate);
+    public void onAddDialogClick(Food food) {
         try {
             foodInventory.addItemToInventory(food);
             foodInventory.saveInventory();
+            foodsList = foodInventory.exportInventory();
+            adapter.setItems(foodsList);
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onEditDialogClick(Food food) {
+        try {
+            foodInventory.updateItem(food.getName(), food);
+            foodInventory.saveInventory();
+            foodsList = foodInventory.exportInventory();
+            adapter.setItems(foodsList);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onItemClick(Food food) {
+        EditInventoryDialog editInventoryDialog = new EditInventoryDialog(food);
+        editInventoryDialog.setTargetFragment(this, 1);
+        editInventoryDialog.show(getFragmentManager(), "EditIngredient");
+    }
+
+    public void SendNotifications(ArrayList<String> alerts) {
+        String CHANNEL_ID = "CHANNEL_ID";
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getContext());
+        notificationManager.createNotificationChannel(new NotificationChannel(CHANNEL_ID, "SmartPantry", NotificationManager.IMPORTANCE_DEFAULT));
+        Intent intent = new Intent(getContext(), MainActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(getContext(), (int) System.currentTimeMillis(), intent, 0);
+        for (int i = 0; i < alerts.size(); i++) {
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(getContext(), CHANNEL_ID)
+                    .setSmallIcon(R.drawable.ic_baseline_notifications_24)
+                    .setContentTitle("Food Inventory")
+                    .setContentIntent(pendingIntent)
+                    .setContentText(alerts.get(i))
+                    .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+            notificationManager.notify(1, builder.build());
         }
     }
 }
